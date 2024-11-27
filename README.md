@@ -45,11 +45,11 @@ Also:
 
 ## Installation
 
-### 0. Share the printer(s)
+### 1. Share the printer(s)
 
 Enable printer sharing through System Settings > General > Sharing (or Sharing in older macOS versions) by turning on Printer Sharing and selecting the printer(s) you want to share from the list. Alternatively, go to System Settings > Printers & Scanners, select the desired printer(s), and check "Share this printer on the network". Once sharing is enabled, continue to Step 1 below.
 
-### 1. Download the Script
+### 2. Download the Script
 
 Clone the repository or download the `airprint_bridge.sh` script directly.
 
@@ -58,13 +58,13 @@ git clone https://github.com/yourusername/airprint-bridge.git
 cd airprint-bridge
 ```
 
-### 2. Make the Script Executable
+### 3. Make the Script Executable
 
 ```bash
 chmod +x airprint_bridge.sh
 ```
 
-### 3. Run the Script with the test option
+### 4. Run the Script with the test option
 
 Execute the script with the --test option.
 
@@ -80,7 +80,7 @@ On your iOS device, open an app that supports printing (e.g., Safari, Mail) and 
 
 - After a succesful print Use `CTRL-C` to exit test mode.
 - 
-### 4. Run the Script with the install option
+### 5. Run the Script with the install option
 
 Execute the script with the --install option. **Note:** Installation requires `sudo` privileges.
 
@@ -92,11 +92,11 @@ sudo ./airprint_bridge.sh -i
 - Generates a registration script (`airprint_bridge.sh`) to register printers via `dns-sd`.
 - Creates and loads a `launchd` plist file to run the script at startup.
 
-### 5. Verify Installation
+### 7. Verify Installation
 
 On your iOS device, open an app that supports printing (e.g., Safari, Mail) and attempt to print. Your shared printers should now appear in the printer selection menu.
 
-## Usage
+## Usage Notes
 
 ### Test Mode
 
