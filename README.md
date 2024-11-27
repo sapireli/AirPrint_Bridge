@@ -159,6 +159,7 @@ This project is licensed under the MIT License.
 
 
 ---
+
 ## SEO Keywords
 
 - AirPrint macOS
@@ -176,6 +177,24 @@ This project is licensed under the MIT License.
 - Convert non-AirPrint printers to AirPrint
 - macOS AirPrint script
 - iOS printing non-AirPrint
+- Turn macOS into AirPrint server
+- AirPrint macOS Catalina
+- Share printers with iPhone
+- AirPrint script for Mac
+- AirPrint without new hardware
+- Affordable AirPrint solution
+- DIY AirPrint setup
+- AirPrint compatibility macOS
+- Wireless printing iOS devices
+- Enable AirPrint on legacy printers
+- Easy AirPrint configuration
+- macOS AirPrint automation
+- Bonjour printer sharing macOS
+- Turn shared printers into AirPrint devices
+- Free macOS printing solution
+- iPhone printing with shared printers
+- AirPrint for older macOS versions
+- How to AirPrint with macOS
 - Hack to allow AirPrint print sharing on a Mac
-
+- 
 **Keywords**: AirPrint, macOS, iOS, Printer Sharing, Bash Script, Bonjour, DNS-SD, CUPS, Non-AirPrint Printers, Network Printing, Printer Discovery, Launchd, Automation, Printing from iPhone, Printing from iPad.
