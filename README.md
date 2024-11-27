@@ -78,10 +78,8 @@ What it does:
 - Generates a registration script (`airprint_bridge.sh`) to register printers via `dns-sd`.
 - Runs `airprint_bridge.sh`to enable Airprint printing to detected printers (in the foreground).
 
-On your iOS device, open an app that supports printing (e.g., Safari, Mail) and attempt to print. Your shared printer(s) should now appear in the printer selection menu, if everything works proceed to install.
-
-- After a succesful print Use `CTRL-C` to exit test mode.
-- 
+This will then hang. While it is running the Mac should be acting as an Airprint server. Try to print from some iOS app to verify this. You can use CTRL-C to break the hang and exit the script. If everything works proceed to install below.
+ 
 ### 5. Run the Script with the install option
 
 Execute the script with the --install option. **Note:** Installation requires `sudo` privileges.
@@ -155,6 +153,25 @@ This project is licensed under the MIT License.
 - Inspired by [PeterCrozier's AirPrint](https://github.com/PeterCrozier/AirPrint), with multiple enhancements for robustness, limited dependencies, and modern macOS compatibility.
 - Based on ideas and insights from [GeekBitZone's guide to AirPrint on macOS](https://www.geekbitzone.com/posts/2021/macos/airprint/macos-airprint/), which provides a detailed explanation of enabling AirPrint support manually.
 
+
 ---
+## SEO Keywords
+
+- AirPrint macOS
+- Enable AirPrint for non-AirPrint printers
+- Print from iPhone macOS
+- Bonjour AirPrint setup
+- AirPrint for older printers
+- macOS AirPrint bridge
+- Free AirPrint solution
+- Wireless printing macOS iPhone
+- iPad printing non-AirPrint printer
+- Add AirPrint support macOS
+- Print wirelessly from iPhone to any printer
+- Open source AirPrint solution
+- Convert non-AirPrint printers to AirPrint
+- macOS AirPrint script
+- iOS printing non-AirPrint
+- Hack to allow AirPrint print sharing on a Mac
 
 **Keywords**: AirPrint, macOS, iOS, Printer Sharing, Bash Script, Bonjour, DNS-SD, CUPS, Non-AirPrint Printers, Network Printing, Printer Discovery, Launchd, Automation, Printing from iPhone, Printing from iPad.
