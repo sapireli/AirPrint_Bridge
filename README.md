@@ -198,3 +198,6 @@ This project is licensed under the MIT License.
 - Hack to allow AirPrint print sharing on a Mac
 
 **Keywords**: AirPrint, macOS, iOS, Printer Sharing, Bash Script, Bonjour, DNS-SD, CUPS, Non-AirPrint Printers, Network Printing, Printer Discovery, Launchd, Automation, Printing from iPhone, Printing from iPad.
+## Contributing
+Welcome all feedback, bug reports, and contributions to make AirPrint Bridge even better! Feel free to open an issue or submit a pull request.
+
