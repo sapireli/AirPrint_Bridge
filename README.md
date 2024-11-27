@@ -2,7 +2,7 @@
 
 ## Description
 
-AirPrint Bridge is a Bash script designed to enable AirPrint support for local printers shared on macOS. This allows iOS and iPadOS devices to print directly to printers that do not natively support AirPrint. The project draws inspiration from [PeterCrozier's AirPrint](https://github.com/PeterCrozier/AirPrint), enhancing and modernizing the approach to ensure compatibility with recent macOS versions.
+AirPrint Bridge is a Bash script designed to enable AirPrint support for local printers shared on macOS. This allows iOS and iPadOS devices to print directly to printers that do not natively support AirPrint. The project draws inspiration from [PeterCrozier's AirPrint](https://github.com/PeterCrozier/AirPrint), enhancing and modernizing the approach to ensure compatibility with recent macOS versions. Specifically, the project utilizes standard macOS commands and services to bridge the gap to allow traditional printers to print using Airprint. THe project doesnt rely on any language or binary that isn't built in on macOS. Additionaly, it naturally supports Apple's Bonjour Sleep Proxy so the printers will continue to work when the host computer is asleep or rebooted in pre-logged in state.
 
 ---
 
@@ -27,6 +27,7 @@ AirPrint Bridge is a Bash script designed to enable AirPrint support for local p
 - **Persistent Service**: Installs as a `launchd` service to ensure AirPrint functionality is always available.
 - **Test Mode**: Run in test mode to verify functionality before installation.
 - **Easy Uninstallation**: Clean removal of the script and associated services.
+- **Bonjour Sleep Proxy**: Automatically registers with the sleep proxy so Airprint Services continue to work when the system is asleep.
 
 ## Requirements
 
@@ -38,7 +39,15 @@ AirPrint Bridge is a Bash script designed to enable AirPrint support for local p
   - `lpoptions`
   - `launchctl`
 
+Also:
+
+  - `A clunky old printer that still works.`
+
 ## Installation
+
+### 0. Share the printer(s)
+
+Enable printer sharing through System Settings > General > Sharing (or Sharing in older macOS versions) by turning on Printer Sharing and selecting the printer(s) you want to share from the list. Alternatively, go to System Settings > Printers & Scanners, select the desired printer(s), and check "Share this printer on the network". Once sharing is enabled, continue to Step 1 below.
 
 ### 1. Download the Script
 
@@ -55,19 +64,34 @@ cd airprint-bridge
 chmod +x airprint_bridge.sh
 ```
 
-### 3. Run the Installer
+### 3. Run the Script with the test option
 
-Execute the script with the install option. **Note:** Installation requires `sudo` privileges.
+Execute the script with the --test option.
 
 ```bash
-sudo ./airprint_bridge.sh --install
+./airprint_bridge.sh -t
+```
+What it does:
+- Detect all local shared printers without AirPrint support.
+- Generates a registration script (`airprint_bridge.sh`) to register printers via `dns-sd`.
+- Runs `airprint_bridge.sh`to enable Airprint printing to detected printers.
+
+On your iOS device, open an app that supports printing (e.g., Safari, Mail) and attempt to print. Your shared printer(s) should now appear in the printer selection menu, if everything works proceed to install.
+
+
+### 4. Run the Script with the install option
+
+Execute the script with the --install option. **Note:** Installation requires `sudo` privileges.
+
+```bash
+sudo ./airprint_bridge.sh -i
 ```
 
 - Detects all local shared printers without AirPrint support.
 - Generates a registration script (`airprint_bridge.sh`) to register printers via `dns-sd`.
 - Creates and loads a `launchd` plist file to run the script at startup.
 
-### 4. Verify Installation
+### 5. Verify Installation
 
 On your iOS device, open an app that supports printing (e.g., Safari, Mail) and attempt to print. Your shared printers should now appear in the printer selection menu.
 
@@ -125,8 +149,8 @@ This project is licensed under the MIT License.
 
 ## Acknowledgements
 
-- Inspired by [PeterCrozier's AirPrint](https://github.com/PeterCrozier/AirPrint), with enhancements for modern macOS compatibility.
-- Utilizes standard macOS commands and services to bridge the gap between traditional printers and modern devices.
+- Inspired by [PeterCrozier's AirPrint](https://github.com/PeterCrozier/AirPrint), with multiple enhancements for robustness, limited dependencies, and modern macOS compatibility.
+- Based on ideas and insights from [GeekBitZone's guide to AirPrint on macOS](https://www.geekbitzone.com/posts/2021/macos/airprint/macos-airprint/), which provides a detailed explanation of enabling AirPrint support manually.
 
 ---
 
