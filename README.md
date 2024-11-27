@@ -31,7 +31,7 @@ AirPrint Bridge is a Bash script designed to enable AirPrint support for local p
 
 ## Requirements
 
-- **Operating System**: macOS 10.15 (Catalina) or later.
+- **Operating System**: macOS 10.15 (Catalina) or later. Note: Not officially tested on macOS versions prior to Catalina (10.15) but probably will work.
 - **Shell**: Bash.
 - **Dependencies**:
   - `dns-sd`
