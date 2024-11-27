@@ -45,7 +45,7 @@ Also:
 
   - A clunky old printer that still works.
 
-## Installation
+## Usage Instructions
 
 ### 1. Share the printer(s)
 
@@ -61,6 +61,10 @@ cd airprint-bridge
 ```
 
 ### 3. Make the Script Executable
+
+Run Terminal.app from Applications/Utilities and browse to the directory you downloaded the script to (usually ```cd Downloads ```) 
+
+Make the script executable.
 
 ```bash
 chmod +x airprint_bridge.sh
@@ -80,7 +84,7 @@ What it does:
 
 This will then hang. While it is running the Mac should be acting as an Airprint server. Try to print from some iOS app to verify this. You can use CTRL-C to break the hang and exit the script. If everything works proceed to install below.
  
-### 5. Run the Script with the install option
+### 5. Run the Script with the install option to install
 
 Execute the script with the --install option. **Note:** Installation requires `sudo` privileges.
 
