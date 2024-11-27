@@ -183,17 +183,17 @@ generate_urf() {
     options=$(lpoptions -l -p "$printer")
 
     # Check for supported resolutions
-    if echo "$options" | grep -q "Resolution/Output Resolution.*300dpi"; then
+    if echo "$options" | grep -q "Resolution/Quality.*300dpi"; then
         urf+="RS300,"
     fi
-    if echo "$options" | grep -q "Resolution/Output Resolution.*600dpi"; then
+    if echo "$options" | grep -q "Resolution/Quality.*600x600dpi"; then
         urf+="RS600,"
     fi
-    if echo "$options" | grep -q "Resolution/Output Resolution.*1200dpi"; then
+    if echo "$options" | grep -q "Resolution/Quality.*1200x600dpi"; then
         urf+="RS1200,"
     fi
 
-    # Check for supported color models
+    # Check for supported color modes
     if echo "$options" | grep -q "ColorModel/Color Mode.*Gray"; then
         urf+="W8,"
     fi
@@ -206,18 +206,43 @@ generate_urf() {
 
     # Check for duplex modes
     if echo "$options" | grep -q "Duplex/.*DuplexNoTumble"; then
-        urf+="DM1,"
+        urf+="DM1,"  # Long-edge duplex
     fi
     if echo "$options" | grep -q "Duplex/.*DuplexTumble"; then
-        urf+="DM3,"
+        urf+="DM3,"  # Short-edge duplex
     fi
 
-    # Check for media types
-    if echo "$options" | grep -q "MediaType/Media Type.*Plain"; then
-        urf+="MT1,"
+    # Check for media types (paper types)
+    if echo "$options" | grep -q "MediaType/Paper Type.*PlainPaper"; then
+        urf+="MT1,"  # Plain paper
     fi
-    if echo "$options" | grep -q "MediaType/Media Type.*Glossy"; then
-        urf+="MT2,"
+    if echo "$options" | grep -q "MediaType/Paper Type.*RECYCLED"; then
+        urf+="MT2,"  # Recycled paper
+    fi
+    if echo "$options" | grep -q "MediaType/Paper Type.*OHP"; then
+        urf+="MT3,"  # Transparency (Overhead Projector)
+    fi
+    if echo "$options" | grep -q "MediaType/Paper Type.*LABELS"; then
+        urf+="MT4,"  # Labels
+    fi
+    if echo "$options" | grep -q "MediaType/Paper Type.*ENVELOPE"; then
+        urf+="MT5,"  # Envelopes
+    fi
+
+    # Check for halftone and toner-saving options
+    if echo "$options" | grep -q "CNHalftone/Halftones.*pattern2"; then
+        urf+="CP2,"  # Halftone pattern 2
+    fi
+    if echo "$options" | grep -q "CNTonerSaving/Toner Save.*True"; then
+        urf+="TS1,"  # Toner save mode enabled
+    fi
+
+    # Check for brightness and contrast adjustments
+    if echo "$options" | grep -q "CNBrightness/Brightness.*[1-9]"; then
+        urf+="BR1,"  # Brightness adjustment available
+    fi
+    if echo "$options" | grep -q "CNContrast/Contrast.*[1-9]"; then
+        urf+="CT1,"  # Contrast adjustment available
     fi
 
     # Remove trailing comma
