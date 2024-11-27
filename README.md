@@ -41,7 +41,7 @@ AirPrint Bridge is a Bash script designed to enable AirPrint support for local p
 
 Also:
 
-  - `A clunky old printer that still works.`
+  - A clunky old printer that still works.
 
 ## Installation
 
