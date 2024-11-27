@@ -12,6 +12,8 @@
 # 
 # For more details, documentation, or to contribute, visit the GitHub repository.
 
+# ------------------------------START------------------------------
+
 # Disable job control messages
 set +m
 
