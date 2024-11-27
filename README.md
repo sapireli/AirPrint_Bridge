@@ -1,8 +1,10 @@
-# AirPrint Bridge: Enable AirPrint for Local Printers on macOS
+# AirPrint Bridge: Seamlessly Enable AirPrint for Non-AirPrint Printers on macOS
+Print Wirelessly from Your iPhone and iPad—No AirPrint Printer Required!
+
 
 ## Description
 
-AirPrint Bridge is a Bash script designed to enable AirPrint support for local printers shared on macOS. This allows iOS and iPadOS devices to print directly to printers that do not natively support AirPrint. The project utilizes standard macOS commands and services to bridge the gap to allow traditional printers to print using Airprint. It is quite an elegant hack to allow AirPrint printer sharing on a Mac. The project doesnt rely on any language or binary that isn't built in on macOS. Additionaly, it naturally supports Apple's Bonjour Sleep Proxy so the printers will continue to work when the host computer is asleep or rebooted in pre-logged-in state.
+AirPrint Bridge is the ultimate solution for enabling AirPrint functionality on macOS for printers that don't natively support it. Perfect for home or office use, this lightweight Bash script transforms your shared printers into AirPrint-compatible devices, allowing you to print wirelessly from your iPhone, iPad, or other Apple devices without purchasing new hardware. This script allows iOS and iPadOS devices to print directly to printers that do not natively support AirPrint. The project utilizes standard macOS commands and services to bridge the gap to allow traditional printers to print using Airprint. It is quite an elegant hack to allow AirPrint print sharing on a Mac. The project doesnt rely on any language or binary that isn't built in on macOS. Additionaly, it naturally supports Apple's Bonjour Sleep Proxy so the printers will continue to work when the host computer is asleep or rebooted in pre-logged-in state.
 
 ---
 
