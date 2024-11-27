@@ -154,7 +154,7 @@ This project is licensed under the MIT License.
 
 ## Acknowledgements
 
-- Inspired by [PeterCrozier's AirPrint](https://github.com/PeterCrozier/AirPrint), with multiple enhancements for robustness, limited dependencies, and modern macOS compatibility.
+- Inspired by @PeterCrozier (https://github.com/PeterCrozier/AirPrint), with multiple enhancements for robustness, limited dependencies, and modern macOS compatibility.
 - Based on ideas and insights from [GeekBitZone's guide to AirPrint on macOS](https://www.geekbitzone.com/posts/2021/macos/airprint/macos-airprint/), which provides a detailed explanation of enabling AirPrint support manually.
 
 
