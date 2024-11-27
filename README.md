@@ -1,6 +1,3 @@
-# AirPrint_Bridge
-AirPrint Bridge: Add AirPrint Support to Unsupported Printers on macOS
-
 # AirPrint Bridge: Enable AirPrint for Local Printers on macOS
 
 ## Description
