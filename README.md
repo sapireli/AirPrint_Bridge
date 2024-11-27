@@ -74,11 +74,12 @@ Execute the script with the --test option.
 What it does:
 - Detect all local shared printers without AirPrint support.
 - Generates a registration script (`airprint_bridge.sh`) to register printers via `dns-sd`.
-- Runs `airprint_bridge.sh`to enable Airprint printing to detected printers.
+- Runs `airprint_bridge.sh`to enable Airprint printing to detected printers (in the foreground).
 
 On your iOS device, open an app that supports printing (e.g., Safari, Mail) and attempt to print. Your shared printer(s) should now appear in the printer selection menu, if everything works proceed to install.
 
-
+- After a succesful print Use `CTRL-C` to exit test mode.
+- 
 ### 4. Run the Script with the install option
 
 Execute the script with the --install option. **Note:** Installation requires `sudo` privileges.
