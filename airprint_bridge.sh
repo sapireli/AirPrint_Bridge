@@ -1,5 +1,17 @@
 #!/bin/bash
 
+# AirPrint Bridge Script
+# Enables AirPrint functionality for shared printers on macOS.
+# Author: Eliran Sapir
+# GitHub: https://github.com/sapireli/AirPrint_Bridge/
+# Version: 1.0
+# License: MIT
+# 
+# This script is designed to make non-AirPrint printers accessible to iOS devices
+# by broadcasting them as AirPrint-compatible using macOS's built-in tools.
+# 
+# For more details, documentation, or to contribute, visit the GitHub repository.
+
 # Disable job control messages
 set +m
 
