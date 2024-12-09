@@ -6,10 +6,10 @@
 # GitHub: https://github.com/sapireli/AirPrint_Bridge/
 # Version: 1.0
 # License: MIT
-# 
+#
 # This script is designed to make non-AirPrint printers accessible to iOS devices
 # by broadcasting them as AirPrint-compatible using macOS's built-in tools.
-# 
+#
 # For more details, documentation, or to contribute, visit the GitHub repository.
 
 # ------------------------------START------------------------------
@@ -23,10 +23,7 @@ DOMAIN="local"
 SCRIPT="airprint_bridge.sh"
 LOGGING=0  # Set to 0 to disable logging
 LOGFILE="airprint_bridge.log"
-
-CMD_INSTALL=0
-CMD_UNINSTALL=0
-CMD_TEST=0
+SCRIPT_FILE=""
 
 # Function to log messages
 log() {
@@ -50,113 +47,78 @@ check_dependencies() {
 
 # Usage information
 usage() {
-    echo "Usage: $0 [options] command"
-    echo ""
-    echo "Command: Choose only one"
-    echo "  -i, --install       Install permanently, requires sudo"
-    echo "  -u, --uninstall     Uninstall, requires sudo"
-    echo "  -t, --test          Test (dry run mode), use CTRL-C to exit"
-    echo ""
-    echo "Options:"
-    echo "  -f, --script_file   Script filename and location"
-    echo "  -h, --help          Print this message"
+    echo "Usage: $0 [-i | -u | -t] [-f script_file] [-h]"
+    echo "  -i  Install (requires sudo)"
+    echo "  -u  Uninstall (requires sudo)"
+    echo "  -t  Test (dry run mode), use CTRL-C to exit"
+    echo "  -f  Script filename and location"
+    echo "  -h  Print this message"
     exit 1
 }
 
-# Parse command line options
-while [[ "$#" -gt 0 ]]; do
-    case "$1" in
-        -i|--install)
-            CMD_INSTALL=1
-            shift
-            ;;
-        -u|--uninstall)
-            CMD_UNINSTALL=1
-            shift
-            ;;
-        -t|--test)
-            CMD_TEST=1
-            shift
-            ;;
-        -f|--script_file)
-            SCRIPT_FILE="$2"
-            shift 2
-            ;;
-        -h|--help)
-            usage
-            ;;
-        *)
-            echo "Unknown option: $1"
-            usage
-            ;;
+COMMAND=""
+
+# Parse command line options using getopts (simplified approach)
+while getopts ":iutf:h" opt; do
+    case "$opt" in
+        i) COMMAND="install" ;;
+        u) COMMAND="uninstall" ;;
+        t) COMMAND="test" ;;
+        f) SCRIPT_FILE="$OPTARG" ;;
+        h) usage ;;
+        *) usage ;;
     esac
 done
 
-# Check for conflicting commands
-cmd_count=$((CMD_INSTALL + CMD_UNINSTALL + CMD_TEST))
-if [ $cmd_count -ne 1 ]; then
+shift $((OPTIND -1))
+
+# Ensure exactly one main command was chosen
+if [ -z "$COMMAND" ]; then
     log "Error: You must specify exactly one command."
     usage
 fi
 
 # Require sudo for install/uninstall
-if [ $EUID -ne 0 ] && { [ $CMD_INSTALL -eq 1 ] || [ $CMD_UNINSTALL -eq 1 ]; }; then
+if [ "$EUID" -ne 0 ] && { [ "$COMMAND" = "install" ] || [ "$COMMAND" = "uninstall" ]; }; then
     log "Error: You must run this script as root (sudo) to install or uninstall."
     exit 1
 fi
 
-
 # Function to check if a printer supports AirPrint
+# Checks DNS-SD records for URF and pdl entries associated with the printer.
 check_airprint_support() {
     local printer="$1"
-    local dns_sd_output
-    local dns_sd_pid
     local found=0
 
-    dns_sd_output=$(mktemp)
-    dns-sd -m -B _ipp._tcp local > "$dns_sd_output" 2>/dev/null &
-
-    while IFS= read -r line; do
+    # Use a pipe directly instead of a temp file
+    dns-sd -m -B _ipp._tcp local 2>/dev/null | while IFS= read -r line; do
         if [[ "$line" == *"$printer"* ]]; then
-            service_name=$(echo "$line" | awk '{for (i=7; i<=NF; i++) printf "%s ", $i; print ""}')
-            service_name=$(echo "$service_name" | sed 's/[[:space:]]*$//')
-            service_output=$(mktemp)
-            dns-sd -m -L "$service_name" _ipp._tcp local > "$service_output" 2>/dev/null &
-
+            service_name=$(echo "$line" | awk '{for (i=7; i<=NF; i++) printf "%s ", $i; print ""}' | sed 's/[[:space:]]*$//')
+            service_output=$(dns-sd -m -L "$service_name" _ipp._tcp local 2>/dev/null)
             # Check for specific AirPrint TXT records
-            if grep -q "URF=" "$service_output" && grep -q "pdl=" "$service_output"; then
+            if echo "$service_output" | grep -q "URF=" && echo "$service_output" | grep -q "pdl="; then
                 found=1
                 break
             fi
-
-            rm "$service_output"
         fi
-    done < "$dns_sd_output"
+    done
 
-    rm "$dns_sd_output"
-
-    if [ $found -eq 1 ]; then
-        return 0  # Printer supports AirPrint
-    else
-        return 1  # Printer does not support AirPrint
-    fi
+    [ $found -eq 1 ]
 }
 
 # Function to list local shared printers without AirPrint support
+# Finds printers on the system that are shared but do not currently support AirPrint.
 browse_printers() {
     PRINTERS=()
-    local all_printers
-    local shared_printers=()
-
     log "Listing local shared printers..."
-
     all_printers=$(lpstat -p | awk '{print $2}')
 
     if [ -z "$all_printers" ]; then
         log "No printers found on this system."
-        exit 1
+        return 1
     fi
 
+    shared_printers=()
     for printer in $all_printers; do
         if lpoptions -p "$printer" | grep -q 'printer-is-shared=true'; then
             shared_printers+=("$printer")
@@ -188,95 +150,140 @@ browse_printers() {
 }
 
 # Function to generate URF string based on printer capabilities
+# This inspects printer options (color mode, media, etc.) and builds a URF record.
 generate_urf() {
     local printer="$1"
     local urf=""
+    local urf_version="V1.4"
+
+    # Function to add URF code if not already present
+    add_urf_code() {
+        local code="$1"
+        [[ "$urf" != *"$code,"* ]] && urf+="$code,"
+    }
+
+    # Validate printer name
+    if [[ -z "$printer" ]]; then
+        log "No printer specified."
+        return 1
+    fi
+
+    # Check if the printer exists
+    if ! lpstat -p "$printer" >/dev/null 2>&1; then
+        log "Printer '$printer' does not exist"
+        return 1
+    fi
 
     # Retrieve printer capabilities
-    local options
-    options=$(lpoptions -l -p "$printer")
+    options=$(lpoptions -l -p "$printer" 2>/dev/null) || { log "Unable to get options for '$printer'."; return 1; }
 
-    # Check for supported resolutions
-    if echo "$options" | grep -q "Resolution/Quality.*300dpi"; then
-        urf+="RS300,"
-    fi
-    if echo "$options" | grep -q "Resolution/Quality.*600x600dpi"; then
-        urf+="RS600,"
-    fi
-    if echo "$options" | grep -q "Resolution/Quality.*1200x600dpi"; then
-        urf+="RS1200,"
-    fi
+    # Parse each line of the lpoptions output
+    # Update URF codes based on supported print qualities, media types, etc.
+    while IFS= read -r line; do
+        case "$line" in
+            # Color Mode Options
+            *"ColorModel/Color"*)
+                IFS=' ' read -r -a color_modes <<< "$(echo "$line" | awk -F': ' '{print $2}')"
+                for color_mode in "${color_modes[@]}"; do
+                    case "$color_mode" in
+                        *Gray*) add_urf_code "W8" ;;
+                        *RGB*) add_urf_code "SRGB24" ;;
+                        *CMYK*) add_urf_code "ADOBERGB24" ;;
+                    esac
+                done
+                ;;
+            
+            # Print Quality Options
+            *"cupsPrintQuality/Quality:"*)
+                IFS=' ' read -r -a qualities <<< "$(echo "$line" | awk -F': ' '{print $2}')"
+                for quality in "${qualities[@]}"; do
+                    case "$quality" in
+                        *Draft*) add_urf_code "PQ1" ;;
+                        *Normal*) add_urf_code "PQ2" ;;
+                        *High*) add_urf_code "PQ3" ;;
+                    esac
+                done
+                ;;
+            
+            # Duplex Mode Options
+            *"Duplex/2-Sided"*)
+                IFS=' ' read -r -a duplex_modes <<< "$(echo "$line" | awk -F': ' '{print $2}')"
+                for duplex_mode in "${duplex_modes[@]}"; do
+                    case "$duplex_mode" in
+                        *DuplexNoTumble*) add_urf_code "DM1" ;;
+                        *DuplexTumble*) add_urf_code "DM3" ;;
+                    esac
+                done
+                ;;
+            
+            # Media Size Options
+            *"PageSize/Media Size:"*)
+                IFS=' ' read -r -a media_sizes <<< "$(echo "$line" | awk -F': ' '{print $2}')"
+                for media_size in "${media_sizes[@]}"; do
+                    case "$media_size" in
+                        *Letter*) add_urf_code "MS_LETTER" ;;
+                        *A4*) add_urf_code "MS_A4" ;;
+                        *Legal*) add_urf_code "MS_LEGAL" ;;
+                    esac
+                done
+                ;;
+            
+            # Media Type Options
+            *"MediaType/MediaType:"*)
+                IFS=' ' read -r -a media_types <<< "$(echo "$line" | awk -F': ' '{print $2}')"
+                for media_type in "${media_types[@]}"; do
+                    case "$media_type" in
+                        *stationery*|*any*) add_urf_code "MT0" ;;
+                        *plain*) add_urf_code "MT1" ;;
+                        *recycled*) add_urf_code "MT2" ;;
+                        *transparency*) add_urf_code "MT3" ;;
+                        *labels*) add_urf_code "MT4" ;;
+                        *envelope*) add_urf_code "MT5" ;;
+                        *photographic*) add_urf_code "MT6" ;;
+                        *glossy*) add_urf_code "MT7" ;;
+                        *matte*) add_urf_code "MT8" ;;
+                    esac
+                done
+                ;;
+            
+            # Input Slot (Media Source) Options
+            *"InputSlot/Media Source:"*)
+                IFS=' ' read -r -a input_slots <<< "$(echo "$line" | awk -F': ' '{print $2}')"
+                for input_slot in "${input_slots[@]}"; do
+                    case "$input_slot" in
+                        *auto*) add_urf_code "IS1" ;;
+                        *tray-1*) add_urf_code "IS2" ;;
+                        *tray-2*) add_urf_code "IS3" ;;
+                        *Manual*) add_urf_code "IS4" ;;
+                    esac
+                done
+                ;;
+        esac
+    done <<< "$options"
 
-    # Check for supported color modes
-    if echo "$options" | grep -q "ColorModel/Color Mode.*Gray"; then
-        urf+="W8,"
-    fi
-    if echo "$options" | grep -q "ColorModel/Color Mode.*RGB"; then
-        urf+="SRGB24,"
-    fi
-    if echo "$options" | grep -q "ColorModel/Color Mode.*CMYK"; then
-        urf+="ADOBERGB24,"
-    fi
-
-    # Check for duplex modes
-    if echo "$options" | grep -q "Duplex/.*DuplexNoTumble"; then
-        urf+="DM1,"  # Long-edge duplex
-    fi
-    if echo "$options" | grep -q "Duplex/.*DuplexTumble"; then
-        urf+="DM3,"  # Short-edge duplex
-    fi
-
-    # Check for media types (paper types)
-    if echo "$options" | grep -q "MediaType/Paper Type.*PlainPaper"; then
-        urf+="MT1,"  # Plain paper
-    fi
-    if echo "$options" | grep -q "MediaType/Paper Type.*RECYCLED"; then
-        urf+="MT2,"  # Recycled paper
-    fi
-    if echo "$options" | grep -q "MediaType/Paper Type.*OHP"; then
-        urf+="MT3,"  # Transparency (Overhead Projector)
-    fi
-    if echo "$options" | grep -q "MediaType/Paper Type.*LABELS"; then
-        urf+="MT4,"  # Labels
-    fi
-    if echo "$options" | grep -q "MediaType/Paper Type.*ENVELOPE"; then
-        urf+="MT5,"  # Envelopes
-    fi
-
-    # Check for halftone and toner-saving options
-    if echo "$options" | grep -q "CNHalftone/Halftones.*pattern2"; then
-        urf+="CP2,"  # Halftone pattern 2
-    fi
-    if echo "$options" | grep -q "CNTonerSaving/Toner Save.*True"; then
-        urf+="TS1,"  # Toner save mode enabled
-    fi
-
-    # Check for brightness and contrast adjustments
-    if echo "$options" | grep -q "CNBrightness/Brightness.*[1-9]"; then
-        urf+="BR1,"  # Brightness adjustment available
-    fi
-    if echo "$options" | grep -q "CNContrast/Contrast.*[1-9]"; then
-        urf+="CT1,"  # Contrast adjustment available
-    fi
-
-    # Remove trailing comma
+    # Remove trailing comma from URF string
     urf=${urf%,}
 
-    # Fallback if URF is empty
+    # Add URF version if URF codes are present
+    if [[ -n "$urf" ]]; then
+        urf="$urf_version,$urf"
+    fi
+
+    # Output the final URF string or 'none' if empty
     echo "${urf:-none}"
 }
 
 # Function to resolve printer details
+# Identifies printer URI, host, port, description, location, and constructs AirPrint TXT records.
 resolve_printer() {
     local printer_name="$1"
     TXT_RECORDS=()
-    local device_uri
 
     log "Resolving \"$printer_name\"..."
 
     # Get device URI
     device_uri=$(lpstat -v "$printer_name" | awk '{print $3}' | sed 's/.$//')
-    log "Device URI for $printer_name: $device_uri"
+    log "Device URI: $device_uri"
 
     # Determine target host and port
     if [[ "$device_uri" =~ ^ipps?:// ]]; then
@@ -289,15 +296,13 @@ resolve_printer() {
     fi
 
     # Get printer description
-    printer_desc=$(lpstat -l -p "$printer_name" | awk -F'Description:' '/Description:/ {
-        gsub(/^ +| +$/, "", $2); print $2}')
+    printer_desc=$(lpstat -l -p "$printer_name" | awk -F'Description:' '/Description:/ {gsub(/^ +| +$/,"",$2); print $2}')
     printer_desc="${printer_desc:-$printer_name @ $(hostname -s)}"
-    log "Printer description for $printer_name: $printer_desc"
+    log "Description: $printer_desc"
 
     # Get location
-    location=$(lpstat -l -p "$printer_name" | awk -F'Location:' '/Location:/ {
-        gsub(/^ +| +$/, "", $2); print $2}')
-    log "Location for $printer_name: $location"
+    location=$(lpstat -l -p "$printer_name" | awk -F'Location:' '/Location:/ {gsub(/^ +| +$/,"",$2); print $2}')
+    log "Location: $location"
 
     # Get Printer Make and Model
     printer_make_and_model=$(lpoptions -p "$printer_name" | sed -n "s/.*printer-make-and-model='\([^']*\)'.*/\1/p")
@@ -317,69 +322,40 @@ resolve_printer() {
         "URF=$urf"
     )
 
-    # Log final TXT records
-    log "Final TXT records for $printer_name:"
+    log "TXT records:"
     for txt_record in "${TXT_RECORDS[@]}"; do
         log "  $txt_record"
     done
 }
 
 # Function to generate the registration script
+# Creates a script that runs dns-sd registration commands for each printer.
 generate_script() {
     log "Generating ./$SCRIPT..."
-
     {
         echo "#!/bin/bash"
-        echo ""
-        echo "# Disable job control messages"
         echo "set +m"
-        echo ""
-        echo "# Trap to clean up background processes on exit"
         echo "trap 'kill \${PIDS[@]} 2>/dev/null' EXIT INT TERM"
-        echo ""
         echo "PIDS=()"
-        echo ""
-
         for printer_name in "${PRINTERS[@]}"; do
             resolve_printer "$printer_name"
-            if [ $? -ne 0 ]; then
-                log "Failed to resolve printer: $printer_name. Skipping..."
-                continue
-            fi
-
-            # Initialize txt_record_str
+            [ $? -ne 0 ] && { log "Failed to resolve: $printer_name"; continue; }
             txt_record_str=""
             for txt in "${TXT_RECORDS[@]}"; do
                 txt_record_str+="\"$txt\" "
             done
-
-            # Escape the printer description for safety
             safe_printer_desc=$(printf "%s" "$printer_desc" | sed "s/'/'\\\\''/g")
-
-            # Construct the dns-sd command with proper quoting
             cmd="dns-sd -R \"$safe_printer_desc @ $(hostname -s)\" \"$SERVICE\" \"$DOMAIN\" $PORT $txt_record_str"
-           
-            # Append the command and PID tracking to the generated script
             echo "$cmd &"
             echo "PIDS+=(\"\$!\")"
         done
-
-
-            log "Added dns-sd command for printer: $printer_name"
-
-            # Append the wait command to the generated script
-            echo ""
-            echo "# Wait for background processes"
-            echo "wait"
-        
-            
+        echo "wait"
     } > "$SCRIPT"
-
     chmod +x "$SCRIPT"
 }
 
-
 # Function to generate the plist file for launchd
+# Creates a LaunchDaemon plist to run the script at system startup and keep it alive.
 generate_plist() {
     local plist_file="/Library/LaunchDaemons/com.sapireli.airprint_bridge.plist"
     local script_path="/usr/local/bin/$SCRIPT"
@@ -431,14 +407,13 @@ EOF
 
     # Load the plist
     sudo launchctl load -w "$plist_file"
-    log "Generated and loaded plist: $plist_file"
+    log "Plist loaded: $plist_file"
 }
 
-
 # Function to uninstall the script and plist
+# Removes LaunchDaemon and the script, and kills any related dns-sd processes.
 uninstall() {
     log "Uninstalling..."
-
     plist_file="/Library/LaunchDaemons/com.sapireli.airprint_bridge.plist"
 
     # Unload and remove the plist file
@@ -465,8 +440,8 @@ uninstall() {
     log "Uninstallation complete."
 }
 
-
 # Function to install the script and plist
+# Checks dependencies, finds printers, generates scripts, and installs LaunchDaemon.
 install() {
     check_dependencies
     if browse_printers; then
@@ -479,7 +454,8 @@ install() {
 }
 
 # Function to test the script (acts as a dry run, no permanent changes made)
-test() {
+# Registers printers temporarily; use CTRL-C to exit.
+test_run() {
     check_dependencies
     if browse_printers; then
         generate_script
@@ -490,16 +466,9 @@ test() {
     fi
 }
 
-# Main execution
-if [ $CMD_UNINSTALL -eq 1 ]; then
-    uninstall
-    exit 0
-fi
-
-if [ $CMD_INSTALL -eq 1 ]; then
-    install
-elif [ $CMD_TEST -eq 1 ]; then
-    test
-else
-    usage
-fi
+# Main execution based on COMMAND
+case "$COMMAND" in
+    install) install ;;
+    uninstall) uninstall ;;
+    test) test_run ;;
+esac
