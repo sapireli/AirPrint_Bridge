@@ -20,7 +20,7 @@ set +m
 # Variables
 SERVICE="_ipp._tcp.,_universal"
 DOMAIN="local"
-SCRIPT="airprint_bridge.sh"
+SCRIPT="airprint_bridge_launcher.sh"
 LOGGING=0  # Set to 0 to disable logging
 LOGFILE="airprint_bridge.log"
 SCRIPT_FILE=""
@@ -384,7 +384,7 @@ generate_plist() {
 
         <key>ProgramArguments</key>
         <array>
-            <string>/usr/local/bin/airprint_bridge.sh</string>
+            <string>$script_path</string>
         </array>
 
         <key>LowPriorityIO</key>
