@@ -4,7 +4,7 @@
 # Enables AirPrint functionality for shared printers on macOS.
 # Author: Eliran Sapir
 # GitHub: https://github.com/sapireli/AirPrint_Bridge/
-# Version: 1.0
+# Version: 1.1
 # License: MIT
 #
 # This script is designed to make non-AirPrint printers accessible to iOS devices
