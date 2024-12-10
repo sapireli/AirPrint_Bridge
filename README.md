@@ -48,7 +48,7 @@ Also:
 
 ### 1. Share the printer(s)
 
-Enable printer sharing through System Settings > General > Sharing (or Sharing in older macOS versions) by turning on Printer Sharing and selecting the printer(s) you want to share from the list. Alternatively, go to System Settings > Printers & Scanners, select the desired printer(s), and check "Share this printer on the network". Once sharing is enabled, continue to Step 1 below.
+Enable printer sharing through System Settings > General > Sharing (or Sharing in older macOS versions) by turning on Printer Sharing and selecting the printer(s) you want to share from the list. Alternatively, go to System Settings > Printers & Scanners, select the desired printer(s), and check "Share this printer on the network". Once sharing is enabled, continue to Step 2 below.
 
 ### 2. Download the Script
 
