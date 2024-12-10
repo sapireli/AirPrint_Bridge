@@ -17,6 +17,10 @@
 # Disable job control messages
 set +m
 
+# Forcing an English locale inside the script:
+export LANG=C
+export LC_ALL=C
+
 # Variables
 SERVICE="_ipp._tcp.,_universal"
 DOMAIN="local"
