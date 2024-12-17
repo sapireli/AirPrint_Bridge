@@ -18,6 +18,7 @@
 set +m
 
 # Forcing an English locale inside the script:
+export SOFTWARE=
 export LANG=C
 export LC_ALL=C
 
