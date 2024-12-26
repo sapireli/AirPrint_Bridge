@@ -56,7 +56,7 @@ Clone the repository or download the `airprint_bridge.sh` script directly.
 
 ```bash
 git clone https://github.com/sapireli/AirPrint_Bridge.git
-cd airprint-bridge
+cd AirPrint_Bridge
 ```
 
 ### 3. Make the Script Executable
