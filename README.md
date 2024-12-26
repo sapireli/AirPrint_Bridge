@@ -55,7 +55,7 @@ Enable printer sharing through System Settings > General > Sharing (or Sharing i
 Clone the repository or download the `airprint_bridge.sh` script directly.
 
 ```bash
-git clone https://github.com/yourusername/airprint-bridge.git
+git clone https://github.com/sapireli/AirPrint_Bridge.git
 cd airprint-bridge
 ```
 
