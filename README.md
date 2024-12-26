@@ -84,7 +84,7 @@ What happens:
 2. Generates a registration script (`airprint_bridge_launcher.sh`) to register printers via `dns-sd`.
 3. Runs that registration script in the foreground so you can test printing from an iOS device.
 
-The script will hang while advertising your printers. **Use `CTRL-C`** to terminate. If you can see and use your printer from iOS, you’re ready to install.
+The script will hang while advertising your printers. **Use `CTRL-C`** to terminate. If you can see and use your printer from iOS (try printing from Photos, Safari, Notes, or any app that supports printing), you’re ready to install.
 
 ### 5. Install the Service
 
