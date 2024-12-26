@@ -162,16 +162,16 @@ This project is licensed under the MIT License.
 
 ## Acknowledgements
 
-- Inspired by [@PeterCrozier](https://github.com/PeterCrozier/AirPrint) and [GeekBitZone’s AirPrint guide](https://www.geekbitzone.com/posts/2021/macos/airprint/macos-airprint/). 
-- Contributions, bug fixes, and feature requests are always welcome.
+- Inspired by [@PeterCrozier](https://github.com/PeterCrozier/AirPrint)
+- Insights from [GeekBitZone’s AirPrint guide](https://www.geekbitzone.com/posts/2021/macos/airprint/macos-airprint/)
 
 ## Contributing
 
-Feedback, bug reports, and pull requests are encouraged and appreciated. Feel free to open an issue on GitHub or contact the author directly for suggestions.
+Feedback, bug reports, and pull requests are encouraged and appreciated. Feel free to open an issue on GitHub.
 
----
+## Give It a Star ⭐
 
-Happy printing! If you have questions or run into any issues, don’t hesitate to open an [issue](https://github.com/sapireli/AirPrint_Bridge/issues).
+If you find this project useful or interesting, please consider giving it a star on [GitHub](https://github.com/sapireli/AirPrint_Bridge). Your support helps others discover the project and motivates further improvements. Thank you! 😊
 
 ---
 
@@ -211,7 +211,3 @@ Happy printing! If you have questions or run into any issues, don’t hesitate t
 - AirPrint for older macOS versions
 - How to AirPrint with macOS
 - Hack to allow AirPrint print sharing on a Mac
-
----
-
-**Keywords**: AirPrint, macOS, iOS, Printer Sharing, Bash Script, Bonjour, DNS-SD, CUPS, Non-AirPrint Printers, Network Printing, Printer Discovery, Launchd, Automation, Printing from iPhone, Printing from iPad.
