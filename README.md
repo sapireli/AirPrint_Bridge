@@ -103,7 +103,7 @@ sudo ./airprint_bridge.sh -i
 Open an app on your iOS device with printing capabilities (Safari, Mail, Photos, etc.), tap **Print**, and choose the newly advertised printer(s).
 Happy Printing!
 
-## Additional Options
+## ⚙️ Additional Options
 
 ### 1. Logging
 
