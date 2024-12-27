@@ -186,13 +186,12 @@ If you find this project useful or interesting, please consider giving it a star
 - AirPrint for older printers
 - macOS AirPrint bridge
 - iPad printing non-AirPrint printer
-- Add AirPrint support macOS
+- Add AirPrint support to printer macOS
 - Print wirelessly from iPhone to any printer
 - Open source AirPrint solution
 - Convert non-AirPrint printers to AirPrint
 - iOS printing non-AirPrint
 - Turn macOS into AirPrint server
-- Share printers with iPhone
 - AirPrint without new hardware
 - free AirPrint solution
 - Enable AirPrint on legacy printers
