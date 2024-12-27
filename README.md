@@ -203,3 +203,4 @@ If you find this project useful or interesting, please consider giving it a star
 - enable AirPrint on older printers
 - make non-AirPrint printers AirPrint compatible
 - print fron an iphone to a non-AirPrint compatible printer
+- free alternative to Handyprint
