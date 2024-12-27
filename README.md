@@ -180,38 +180,23 @@ If you find this project useful or interesting, please consider giving it a star
 
 ## SEO Keywords
 
-- AirPrint macOS
 - Enable AirPrint for non-AirPrint printers
 - Print from iPhone macOS
-- Bonjour AirPrint setup
 - AirPrint for older printers
 - macOS AirPrint bridge
-- Free AirPrint solution
-- Wireless printing macOS iPhone
 - iPad printing non-AirPrint printer
 - Add AirPrint support macOS
 - Print wirelessly from iPhone to any printer
 - Open source AirPrint solution
 - Convert non-AirPrint printers to AirPrint
-- macOS AirPrint script
 - iOS printing non-AirPrint
 - Turn macOS into AirPrint server
-- AirPrint macOS Catalina
 - Share printers with iPhone
 - AirPrint script for Mac
 - AirPrint without new hardware
-- Affordable AirPrint solution
-- DIY AirPrint setup
-- AirPrint compatibility macOS
-- Wireless printing iOS devices
+- free AirPrint solution
 - Enable AirPrint on legacy printers
-- Easy AirPrint configuration
-- macOS AirPrint automation
-- Bonjour printer sharing macOS
 - Turn shared printers into AirPrint devices
-- Free macOS printing solution
 - iPhone printing with shared printers
-- AirPrint for older macOS versions
-- How to AirPrint with macOS
 - Hack to allow AirPrint print sharing on a Mac
 - Airprint Activator
