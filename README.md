@@ -182,6 +182,7 @@ If you find this project useful or interesting, please consider giving it a star
 
 - Enable AirPrint for non-AirPrint printers
 - Print from iPhone to shared printer
+- How To Print to iPhone or iPad With or Without AirPrint
 - AirPrint for older printers
 - macOS AirPrint bridge
 - iPad printing non-AirPrint printer
@@ -201,3 +202,4 @@ If you find this project useful or interesting, please consider giving it a star
 - Airprint Activator
 - enable AirPrint on older printers
 - make non-AirPrint printers AirPrint compatible
+- print fron an iphone to a non-AirPrint compatible printer
