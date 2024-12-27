@@ -207,3 +207,4 @@ If you find this project useful or interesting, please consider giving it a star
 - free alternative to Handyprint
 - iOS Airprint Sharing on Mac OS
 - iOS AirPrint for Mac
+- enable AirPrint for any printer
