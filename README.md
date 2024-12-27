@@ -1,7 +1,7 @@
-# AirPrint Bridge: Seamlessly Enable AirPrint for Non-AirPrint Printers on macOS
+# 🖨️ AirPrint Bridge: Seamlessly Enable AirPrint for Non-AirPrint Printers on macOS
 Print Wirelessly from Your iPhone and iPad — No AirPrint Printer Required! 
 
-## Description
+## 📜 Description
 
 AirPrint Bridge enables AirPrint functionality on macOS for printers that don't natively support it. This script allows iOS and iPadOS devices to print directly to printers that do not natively support AirPrint. The project doesn’t rely on any additional binaries that aren't built in on macOS, uses almost no resources, and is entirely automated. It naturally supports Apple’s Bonjour Sleep Proxy, so printers will continue to work when the host computer is asleep or rebooted (even pre-login).
 
@@ -9,7 +9,7 @@ AirPrint Bridge enables AirPrint functionality on macOS for printers that don't 
 
 ---
 
-## Table of Contents
+## 📋 Table of Contents
 
 - [Features](#features)
 - [Requirements](#requirements)
@@ -24,7 +24,7 @@ AirPrint Bridge enables AirPrint functionality on macOS for printers that don't 
 
 ---
 
-## Features
+## ⭐ Features
 
 - **Enable AirPrint for Non-AirPrint Printers**: Share printers that do not natively support AirPrint with your iOS devices.
 - **Automatic Detection**: Automatically detects shared printers lacking AirPrint support.
@@ -33,7 +33,7 @@ AirPrint Bridge enables AirPrint functionality on macOS for printers that don't 
 - **Easy Uninstallation**: Clean removal of the script and associated services.
 - **Bonjour Sleep Proxy**: Automatically registers with the sleep proxy so AirPrint services continue to work when the system is asleep.
 
-## Requirements
+## 🛠️ Requirements
 
 - **Operating System**: macOS 10.15 (Catalina) or later. (Not officially tested on macOS versions prior to 10.15, but likely compatible.)
 - **Shell**: Bash.
@@ -45,7 +45,7 @@ AirPrint Bridge enables AirPrint functionality on macOS for printers that don't 
 
 And of course, a trusty old printer!
 
-## Usage Instructions
+## 📚 Usage Instructions
 
 ### 1. Share Your Printers
 
@@ -129,7 +129,7 @@ This tells `airprint_bridge.sh` to generate `/path/to/custom_launcher.sh` rather
 
 > **Note**: The `-f` option only overrides the generation of the **registration** script, not the main `airprint_bridge.sh` itself.
 
-## Uninstallation
+## 🗑️ Uninstallation
 
 To remove AirPrint Bridge entirely:
 
@@ -143,7 +143,7 @@ sudo ./airprint_bridge.sh -u
 
 Your system will be returned to its original state (i.e., as if AirPrint Bridge was never installed).
 
-## How It Works
+## 💡 How It Works
 
 1. **Printer Detection**: Identifies all shared printers on your Mac; filters out those already AirPrint-capable.
 2. **Capability Analysis**: Generates a suitable URF string based on each printer’s capabilities (color, duplex, paper types, etc.).
@@ -151,7 +151,7 @@ Your system will be returned to its original state (i.e., as if AirPrint Bridge 
 4. **Launchd Integration**: Automatically starts and keeps the advertising service running in the background, even before user login.
 5. **Bonjour Sleep Proxy**: macOS’s built-in Bonjour Sleep Proxy keeps these printers discoverable to iOS devices, even if the Mac is sleeping.
 
-## Troubleshooting
+## ❓ Troubleshooting
 
 - **Printers Not Found**: Confirm the printers are installed, powered on, and marked “Shared” on your Mac.
 - **Dependencies Missing**: Ensure that `dns-sd`, `lpstat`, `lpoptions`, and `launchctl` are installed (they are typically standard on macOS).
@@ -159,20 +159,20 @@ Your system will be returned to its original state (i.e., as if AirPrint Bridge 
 - **Firewall Issues**: Make sure printer sharing and Bonjour services aren’t blocked in your macOS firewall.
 - **No Output in Log**: If you enabled logging but see no file, ensure the script has permission to create/write the file.
 
-## License
+## 📄 License
 
 This project is licensed under the MIT License.
 
-## Acknowledgements
+## 🙌 Acknowledgements
 
 - Inspired by [@PeterCrozier](https://github.com/PeterCrozier/AirPrint)
 - Insights from [GeekBitZone’s AirPrint guide](https://www.geekbitzone.com/posts/2021/macos/airprint/macos-airprint/)
 
-## Contributing
+## 🤝 Contributing
 
 Feedback, bug reports, and pull requests are encouraged and appreciated. Feel free to open an issue on GitHub.
 
-## Give It a Star ⭐
+## 🌟 Give It a Star ⭐
 
 If you find this project useful or interesting, please consider giving it a star on [GitHub](https://github.com/sapireli/AirPrint_Bridge). Your support helps others discover the project and motivates further improvements. Thank you! 😊
 
