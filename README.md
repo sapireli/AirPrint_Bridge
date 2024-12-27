@@ -214,3 +214,4 @@ If you find this project useful or interesting, please consider giving it a star
 - AirPrint for older macOS versions
 - How to AirPrint with macOS
 - Hack to allow AirPrint print sharing on a Mac
+- Airprint Activator
