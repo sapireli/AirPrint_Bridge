@@ -11,16 +11,16 @@ AirPrint Bridge enables AirPrint functionality on macOS for printers that don't 
 
 ## 📋 Table of Contents
 
-- [Features](#features)
-- [Requirements](#requirements)
-- [Usage Instructions](#usage-instructions)
-- [Additional Options](#additional-options)
-- [Uninstallation](#uninstallation)
-- [How It Works](#how-it-works)
-- [Troubleshooting](#troubleshooting)
-- [License](#license)
-- [Acknowledgements](#acknowledgements)
-- [Contributing](#contributing)
+- [⭐ Features](#-features)
+- [🛠️ Requirements](#️-requirements)
+- [📚 Usage Instructions](#-usage-instructions)
+- [⚙️ Additional Options](#️-additional-options)
+- [🗑️ Uninstallation](#️-uninstallation)
+- [💡 How It Works](#-how-it-works)
+- [❓ Troubleshooting](#-troubleshooting)
+- [📄 License](#-license)
+- [🙌 Acknowledgements](#-acknowledgements)
+- [🤝 Contributing](#-contributing)
 
 ---
 
