@@ -37,13 +37,7 @@ AirPrint Bridge enables AirPrint functionality on macOS for printers that don't 
 
 - **Operating System**: macOS 10.15 (Catalina) or later. (Not officially tested on macOS versions prior to 10.15, but likely compatible.)
 - **Shell**: Bash.
-- **Dependencies**:
-  - `dns-sd`
-  - `lpstat`
-  - `lpoptions`
-  - `launchctl`
-
-And of course, a trusty old printer!
+- a trusty old printer
 
 ## 📚 Usage Instructions
 
