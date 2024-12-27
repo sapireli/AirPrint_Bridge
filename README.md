@@ -199,6 +199,7 @@ If you find this project useful or interesting, please consider giving it a star
 - iPhone printing with shared printers
 - Hack to allow AirPrint print sharing on a Mac
 - Airprint Activator
+- Airprint Enabler
 - enable AirPrint on older printers
 - make non-AirPrint printers AirPrint compatible
 - print fron an iphone to a non-AirPrint compatible printer
