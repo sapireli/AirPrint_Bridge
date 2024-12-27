@@ -1,5 +1,5 @@
 # AirPrint Bridge: Seamlessly Enable AirPrint for Non-AirPrint Printers on macOS
-Print Wirelessly from Your iPhone and iPad — No AirPrint Printer Required! [![GitHub last commit](https://img.shields.io/github/last-commit/sapireli/AirPrint_Bridge)
+Print Wirelessly from Your iPhone and iPad — No AirPrint Printer Required! ![GitHub last commit](https://img.shields.io/github/last-commit/sapireli/AirPrint_Bridge)
 
 ## Description
 
