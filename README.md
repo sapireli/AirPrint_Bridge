@@ -181,7 +181,7 @@ If you find this project useful or interesting, please consider giving it a star
 ## SEO Keywords
 
 - Enable AirPrint for non-AirPrint printers
-- Print from iPhone macOS
+- Print from iPhone to shared printer
 - AirPrint for older printers
 - macOS AirPrint bridge
 - iPad printing non-AirPrint printer
@@ -192,7 +192,6 @@ If you find this project useful or interesting, please consider giving it a star
 - iOS printing non-AirPrint
 - Turn macOS into AirPrint server
 - Share printers with iPhone
-- AirPrint script for Mac
 - AirPrint without new hardware
 - free AirPrint solution
 - Enable AirPrint on legacy printers
