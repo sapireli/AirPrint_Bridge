@@ -200,4 +200,4 @@ If you find this project useful or interesting, please consider giving it a star
 - Hack to allow AirPrint print sharing on a Mac
 - Airprint Activator
 - enable AirPrint on older printers
-- make non-AirPrint printers AirPrint-compatible
+- make non-AirPrint printers AirPrint compatible
