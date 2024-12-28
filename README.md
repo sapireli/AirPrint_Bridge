@@ -174,7 +174,7 @@ If you find this project useful or interesting, please consider giving it a star
 
 ## 📜 Trademark Attribution
 
-"AirPrint, iPhone, iPad, Mac, and macOS are trademarks of Apple Inc., registered in the U.S. and other countries. Bonjour is a trademark of Apple Inc. Other trademarks and trade names may be used in this project to refer to entities claiming the marks and names of their respective products. Use of these trademarks does not imply any affiliation with or endorsement by their respective owners."
+AirPrint, iPhone, iPad, Mac, and macOS are trademarks of Apple Inc., registered in the U.S. and other countries. Bonjour is a trademark of Apple Inc. Other trademarks and trade names may be used in this project to refer to entities claiming the marks and names of their respective products. Use of these trademarks does not imply any affiliation with or endorsement by their respective owners.
 
 ---
 ## 🔍 SEO Keywords
@@ -208,3 +208,9 @@ If you find this project useful or interesting, please consider giving it a star
 - iOS AirPrint for Mac
 - enable AirPrint for any printer
 - Airprint proxy
+
+---
+## 🛡️ Disclaimer
+This script is provided "as is," without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, or non-infringement. In no event shall the authors or copyright holders be liable for any claim, damages, or other liability, whether in an action of contract, tort, or otherwise, arising from, out of, or in connection with the software or the use or other dealings in the software.
+
+---
