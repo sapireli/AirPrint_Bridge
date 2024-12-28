@@ -22,6 +22,7 @@ AirPrint Bridge enables AirPrint functionality on macOS for printers that don't 
 - [🙌 Acknowledgements](#-acknowledgements)
 - [🤝 Contributing](#-contributing)
 - [📜 Trademark Attribution](#-trademark-attribution)
+- [🛡️ Disclaimer](#-disclaimer)
 ---
 
 ## ⭐ Features
@@ -208,6 +209,7 @@ AirPrint, iPhone, iPad, Mac, and macOS are trademarks of Apple Inc., registered 
 - iOS AirPrint for Mac
 - enable AirPrint for any printer
 - Airprint proxy
+- How to turn your Mac into an AirPrint server using Airprint Bridge
 
 ---
 ## 🛡️ Disclaimer
