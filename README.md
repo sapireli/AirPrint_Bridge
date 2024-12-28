@@ -21,7 +21,7 @@ AirPrint Bridge enables AirPrint functionality on macOS for printers that don't 
 - [📄 License](#-license)
 - [🙌 Acknowledgements](#-acknowledgements)
 - [🤝 Contributing](#-contributing)
-
+- [📜 Trademark Attribution](#-trademark-attribution)
 ---
 
 ## ⭐ Features
