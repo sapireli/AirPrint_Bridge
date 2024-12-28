@@ -172,7 +172,12 @@ If you find this project useful or interesting, please consider giving it a star
 
 ---
 
-## SEO Keywords
+## 📜 Trademark Attribution
+
+"AirPrint, iPhone, iPad, Mac, and macOS are trademarks of Apple Inc., registered in the U.S. and other countries. Bonjour is a trademark of Apple Inc. Other trademarks and trade names may be used in this project to refer to entities claiming the marks and names of their respective products. Use of these trademarks does not imply any affiliation with or endorsement by their respective owners."
+
+---
+## 🔍 SEO Keywords
 
 - Enable AirPrint for non-AirPrint printers
 - Print from iPhone to shared printer
