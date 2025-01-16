@@ -73,7 +73,7 @@ chmod +x airprint_bridge.sh
 Run the script in **test mode**:
 
 ```bash
-./airprint_bridge.sh -t
+sudo ./airprint_bridge.sh -t
 ```
 
 What happens:
