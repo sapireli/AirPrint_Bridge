@@ -7,6 +7,7 @@ AirPrint Bridge enables AirPrint functionality on macOS for printers that don't 
 
 ![Bash Script](https://img.shields.io/badge/bash_script-%23121011.svg?style=for-the-badge&logo=gnu-bash&logoColor=white) ![macOS](https://img.shields.io/badge/mac%20os-000000?style=for-the-badge&logo=macos&logoColor=F0F0F0) 
 
+Developing and maintaining projects of this nature requires time and dedication. If you appreciate the effort, please feel free to show your support by giving this repository a ⭐.
 ---
 
 ## 📋 Table of Contents
