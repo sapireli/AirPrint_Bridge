@@ -29,6 +29,7 @@ SCRIPT="airprint_bridge_launcher.sh"
 LOGGING=0  # Set to 0 to disable logging
 LOGFILE="airprint_bridge.log"
 SCRIPT_FILE=""
+CUPS_CONF_CHANGED=0
 
 # Function to log messages
 log() {
