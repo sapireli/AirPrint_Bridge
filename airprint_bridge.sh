@@ -81,7 +81,7 @@ check_cups_permissions() {
     log "CUPS does not allow remote access to shared printers. Backing up cups config to cupsd_conf.bak, and auto fixing"
 
       [ ! -f "${cupsd_conf}.bak" ] && sudo cp "$cupsd_conf" "${cupsd_conf}.bak"
-      sudo sed -i '' '/<Location \/>/,/<\/Location>/ s/Order allow,deny/Require all granted/' "$cupsd_conf"
+      sudo sed -i '' '/<Location \/>/,/<\/Location>/ s/Order allow,deny/Order allow,deny\n  Allow @LOCAL/' "$cupsd_conf"
       if sudo cupsd -t; then
         sudo launchctl stop org.cups.cupsd
         sudo launchctl start org.cups.cupsd
