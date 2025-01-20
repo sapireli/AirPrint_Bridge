@@ -50,6 +50,77 @@ check_dependencies() {
     done
 }
 
+# Check & Fix Firewall
+check_firewall() {
+  log "Checking macOS firewall..."
+  local fw_state
+  fw_state=$(sudo /usr/libexec/ApplicationFirewall/socketfilterfw --getglobalstate 2>/dev/null)
+  if echo "$fw_state" | grep -qi "enabled"; then
+    log "Firewall is enabled. Ensuring CUPS is allowed..."
+    local cups_bin
+    cups_bin=$(which cupsd 2>/dev/null || echo "/usr/sbin/cupsd")
+    if ! sudo /usr/libexec/ApplicationFirewall/socketfilterfw --listapps | grep -q "$cups_bin"; then
+      sudo /usr/libexec/ApplicationFirewall/socketfilterfw --add "$cups_bin"
+      sudo /usr/libexec/ApplicationFirewall/socketfilterfw --unblockapp "$cups_bin"
+      log "Allowed $cups_bin in firewall."
+    fi
+  else
+    log "Firewall is disabled; skipping."
+  fi
+}
+
+# Check & Fix CUPS Permissions
+check_cups_permissions() {
+  log "Checking CUPS permissions..."
+  local cupsd_conf="/etc/cups/cupsd.conf"
+  local choice=2
+
+  # 1) Global remote access
+  if ! grep -q "Allow @LOCAL" "$cupsd_conf" 2>/dev/null; then
+    log "CUPS does not allow remote access to shared printers. Backing up cups config to cupsd_conf.bak, and auto fixing"
+
+      [ ! -f "${cupsd_conf}.bak" ] && sudo cp "$cupsd_conf" "${cupsd_conf}.bak"
+      sudo sed -i '' '/<Location \/>/,/<\/Location>/ s/Order allow,deny/Require all granted/' "$cupsd_conf"
+      if sudo cupsd -t; then
+        sudo launchctl stop org.cups.cupsd
+        sudo launchctl start org.cups.cupsd
+        CUPS_CONF_CHANGED=1
+        log "Autofix successful: enabled remote access in CUPS."
+      else
+        log "CUPS config invalid. Restoring backup..."
+        revert_cups_config
+        exit 1
+      fi
+  else
+    log "CUPS remote access is already allowed."
+  fi
+
+  # 2) Shared printers must allow all users
+  local allp
+  allp=$(lpstat -p | awk '{print $2}')
+  for p in $allp; do
+    if lpoptions -p "$p" | grep -q "printer-is-shared=true"; then
+      if ! lpstat -l -p "$p" | grep -iq "allowed users: all"; then
+        log "Printer '$p' is shared but does not allow all users. Autofixing"
+          sudo lpadmin -p "$p" -u allow:all
+          log "Printer '$p' now allows all users."
+      fi
+    fi
+  done
+}
+
+# Revert CUPS config if it was changed and a backup exists
+revert_cups_config() {
+  local cupsd_conf="/etc/cups/cupsd.conf"
+  if [ "$CUPS_CONF_CHANGED" -eq 1 ] && [ -f "${cupsd_conf}.bak" ]; then
+    log "Reverting changes to $cupsd_conf..."
+    sudo cp "${cupsd_conf}.bak" "$cupsd_conf"
+    sudo launchctl stop org.cups.cupsd
+    sudo launchctl start org.cups.cupsd
+    log "CUPS configuration restored."
+  fi
+}
+
 # Usage information
 usage() {
     echo "Usage: $0 [-i | -u | -t] [-f script_file] [-h]"
@@ -83,9 +154,9 @@ if [ -z "$COMMAND" ]; then
     usage
 fi
 
-# Require sudo for install/uninstall
-if [ "$EUID" -ne 0 ] && { [ "$COMMAND" = "install" ] || [ "$COMMAND" = "uninstall" ]; }; then
-    log "Error: You must run this script as root (sudo) to install or uninstall."
+# Require sudo for install/uninstall/test
+if [ "$EUID" -ne 0 ] && { [ "$COMMAND" = "install" ] || [ "$COMMAND" = "uninstall" ] || [ "$COMMAND" = "test" ]; }; then
+    log "Error: You must run this script as root (sudo) to install, uninstall, or test."
     exit 1
 fi
 
@@ -310,7 +381,7 @@ resolve_printer() {
     log "Location: $location"
 
     # Get Printer Make and Model
-    printer_make_and_model=$(lpoptions -p "$printer_name" | sed -n "s/.*printer-make-and-model='\([^']*\)'.*/\1/p")
+    printer_make_and_model=$(lpoptions -p "$printer_name" | sed -n "s/.*printer-make-and-model=\([^[:space:]]*\).*/\1/p")
 
     # Generate URF record
     urf=$(generate_urf "$printer_name")
@@ -420,6 +491,8 @@ EOF
 uninstall() {
     log "Uninstalling..."
     plist_file="/Library/LaunchDaemons/com.sapireli.airprint_bridge.plist"
+    
+    revert_cups_config
 
     # Unload and remove the plist file
     if [ -f "$plist_file" ]; then
@@ -449,6 +522,8 @@ uninstall() {
 # Checks dependencies, finds printers, generates scripts, and installs LaunchDaemon.
 install() {
     check_dependencies
+    check_cups_permissions
+    check_firewall
     if browse_printers; then
         generate_script
         generate_plist
@@ -462,6 +537,11 @@ install() {
 # Registers printers temporarily; use CTRL-C to exit.
 test_run() {
     check_dependencies
+    check_cups_permissions
+    check_firewall
+    
+    trap 'log "Reverting changes..."; revert_cups_config; exit 0' INT TERM EXIT
+
     if browse_printers; then
         generate_script
         log "Registering printer(s), use CTRL-C to exit"
