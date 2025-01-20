@@ -541,8 +541,6 @@ test_run() {
     check_cups_permissions
     check_firewall
     
-    trap 'log "Reverting changes..."; revert_cups_config; exit 0' INT TERM EXIT
-
     if browse_printers; then
         generate_script
         log "Registering printer(s), use CTRL-C to exit"
