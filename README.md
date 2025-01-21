@@ -80,8 +80,9 @@ sudo ./airprint_bridge.sh -t
 What happens:
 
 1. Detects local shared printers that lack AirPrint support.
-2. Generates a registration script (`airprint_bridge_launcher.sh`) to register printers via `dns-sd`.
-3. Runs that registration script in the foreground so you can test printing from an iOS device.
+2. Checks and fixes firewall and cups config as required
+3. Generates a registration script (`airprint_bridge_launcher.sh`) to register printers via `dns-sd`.
+4. Runs that registration script in the foreground so you can test printing from an iOS device.
 
 The script will now hang while advertising your printers. If you can see and use your printer from iOS, you’re ready to install. **Use `CTRL-C`** to terminate.
 
@@ -136,6 +137,7 @@ sudo ./airprint_bridge.sh -u
 
 - Unloads and removes the `launchd` plist file.
 - Deletes the registration script from `/usr/local/bin`.
+- Restores cups config changes if previously modified by script.
 - Terminates any running `dns-sd` processes associated with AirPrint Bridge.
 
 Your system will be returned to its original state (i.e., as if AirPrint Bridge was never installed).
