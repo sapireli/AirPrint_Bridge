@@ -382,7 +382,7 @@ resolve_printer() {
     log "Location: $location"
 
     # Get Printer Make and Model
-    printer_make_and_model=$(lpoptions -p "$printer_name" | sed -En "s/.*printer-make-and-model=('([^']*)'|([^[:space:]]*)).*/\2\3/p")
+    printer_make_and_model=$(lpoptions -p "$printer_name" | sed -En "s/.*printer-make-and-model=('([^']*)'|([^=]*)) .*/\2\3/p")
 
     # Generate URF record
     urf=$(generate_urf "$printer_name")
