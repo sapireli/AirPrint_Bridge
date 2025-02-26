@@ -4,7 +4,7 @@
 # Enables AirPrint functionality for shared printers on macOS.
 # Author: Eliran Sapir
 # GitHub: https://github.com/sapireli/AirPrint_Bridge/
-# Version: 1.3
+# Version: 1.3.1
 # License: MIT
 #
 # This script is designed to make non-AirPrint printers accessible to iOS devices
@@ -382,7 +382,7 @@ resolve_printer() {
     log "Location: $location"
 
     # Get Printer Make and Model
-    printer_make_and_model=$(lpoptions -p "$printer_name" | sed -n "s/.*printer-make-and-model=\([^[:space:]]*\).*/\1/p")
+    printer_make_and_model=$(lpoptions -p "$printer_name" | sed -En "s/.*printer-make-and-model=('([^']*)'|([^[:space:]]*)).*/\2\3/p")
 
     # Generate URF record
     urf=$(generate_urf "$printer_name")
