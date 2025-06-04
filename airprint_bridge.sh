@@ -74,7 +74,6 @@ check_firewall() {
 check_cups_permissions() {
   log "Checking CUPS permissions..."
   local cupsd_conf="/etc/cups/cupsd.conf"
-  local choice=2
 
   # 1) Global remote access
   if ! grep -q "Allow @LOCAL" "$cupsd_conf" 2>/dev/null; then
@@ -99,15 +98,15 @@ check_cups_permissions() {
   # 2) Shared printers must allow all users
   local allp
   allp=$(lpstat -p | awk '{print $2}')
-  for p in $allp; do
+  while IFS= read -r p; do
     if lpoptions -p "$p" | grep -q "printer-is-shared=true"; then
       if ! lpstat -l -p "$p" | grep -iq "allowed users: all"; then
         log "Printer '$p' is shared but does not allow all users. Autofixing"
-          sudo lpadmin -p "$p" -u allow:all
-          log "Printer '$p' now allows all users."
+        sudo lpadmin -p "$p" -u allow:all
+        log "Printer '$p' now allows all users."
       fi
     fi
-  done
+  done <<< "$allp"
 }
 
 # Revert CUPS config if it was changed and a backup exists
@@ -167,18 +166,16 @@ check_airprint_support() {
     local printer="$1"
     local found=0
 
-    # Use a pipe directly instead of a temp file
-    dns-sd -m -B _ipp._tcp local 2>/dev/null | while IFS= read -r line; do
+    while IFS= read -r line; do
         if [[ "$line" == *"$printer"* ]]; then
             service_name=$(echo "$line" | awk '{for (i=7; i<=NF; i++) printf "%s ", $i; print ""}' | sed 's/[[:space:]]*$//')
             service_output=$(dns-sd -m -L "$service_name" _ipp._tcp local 2>/dev/null)
-            # Check for specific AirPrint TXT records
             if echo "$service_output" | grep -q "URF=" && echo "$service_output" | grep -q "pdl="; then
                 found=1
                 break
             fi
         fi
-    done
+    done < <(dns-sd -m -B _ipp._tcp local 2>/dev/null)
 
     [ $found -eq 1 ]
 }
@@ -196,11 +193,11 @@ browse_printers() {
     fi
 
     shared_printers=()
-    for printer in $all_printers; do
+    while IFS= read -r printer; do
         if lpoptions -p "$printer" | grep -q 'printer-is-shared=true'; then
             shared_printers+=("$printer")
         fi
-    done
+    done <<< "$all_printers"
 
     if [ ${#shared_printers[@]} -eq 0 ]; then
         log "No shared printers found."
@@ -259,7 +256,7 @@ generate_urf() {
     while IFS= read -r line; do
         case "$line" in
             # Color Mode Options
-            *"ColorModel/Color"*)
+            *"ColorModel"*)
                 IFS=' ' read -r -a color_modes <<< "$(echo "$line" | awk -F': ' '{print $2}')"
                 for color_mode in "${color_modes[@]}"; do
                     case "$color_mode" in
@@ -283,7 +280,7 @@ generate_urf() {
                 ;;
             
             # Duplex Mode Options
-            *"Duplex/2-Sided"*)
+            *"Duplex"*)
                 IFS=' ' read -r -a duplex_modes <<< "$(echo "$line" | awk -F': ' '{print $2}')"
                 for duplex_mode in "${duplex_modes[@]}"; do
                     case "$duplex_mode" in
@@ -364,11 +361,9 @@ resolve_printer() {
 
     # Determine target host and port
     if [[ "$device_uri" =~ ^ipps?:// ]]; then
-        TARGET_HOST=$(echo "$device_uri" | awk -F[/:] '{print $4}')
         PORT=$(echo "$device_uri" | awk -F[/:] '{print $5}')
         PORT=${PORT:-631}
     else
-        TARGET_HOST="$(hostname -s).local"
         PORT=631
     fi
 
@@ -415,8 +410,10 @@ generate_script() {
         echo "trap 'kill \${PIDS[@]} 2>/dev/null' EXIT INT TERM"
         echo "PIDS=()"
         for printer_name in "${PRINTERS[@]}"; do
-            resolve_printer "$printer_name"
-            [ $? -ne 0 ] && { log "Failed to resolve: $printer_name"; continue; }
+            if ! resolve_printer "$printer_name"; then
+                log "Failed to resolve: $printer_name"
+                continue
+            fi
             txt_record_str=""
             for txt in "${TXT_RECORDS[@]}"; do
                 txt_record_str+="\"$txt\" "
@@ -512,7 +509,11 @@ uninstall() {
     log "Killing dns-sd processes associated with the AirPrint bridge..."
     pgrep -f "dns-sd -R" | while read -r pid; do
         if ps -p "$pid" -o args= | grep -q "/usr/local/bin/$SCRIPT"; then
-            kill "$pid" 2>/dev/null && log "Killed dns-sd process $pid" || log "Failed to kill process $pid"
+            if kill "$pid" 2>/dev/null; then
+                log "Killed dns-sd process $pid"
+            else
+                log "Failed to kill process $pid"
+            fi
         fi
     done
 
