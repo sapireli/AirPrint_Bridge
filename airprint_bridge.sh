@@ -271,15 +271,7 @@ generate_urf() {
                 done
                 ;;
 
-            # Resolution Options
-            *"Resolution"*|*"resolution"*)
-                res_values=$(echo "$line" | grep -Eo '[0-9]+dpi' | tr -d 'dpi')
-                for res in $res_values; do
-                    add_urf_code "RS${res}"
-                done
-                ;;
-
-            
+           
             # Duplex Mode Options
             *"Duplex"*)
                 IFS=' ' read -r -a duplex_modes <<< "$(echo "$line" | awk -F': ' '{print $2}')"
