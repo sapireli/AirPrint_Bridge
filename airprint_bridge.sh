@@ -160,25 +160,6 @@ if [ "$EUID" -ne 0 ] && { [ "$COMMAND" = "install" ] || [ "$COMMAND" = "uninstal
     exit 1
 fi
 
-# Function to check if a printer supports AirPrint
-# Checks DNS-SD records for URF and pdl entries associated with the printer.
-check_airprint_support() {
-    local printer="$1"
-    local found=0
-
-    while IFS= read -r line; do
-        if [[ "$line" == *"$printer"* ]]; then
-            service_name=$(echo "$line" | awk '{for (i=7; i<=NF; i++) printf "%s ", $i; print ""}' | sed 's/[[:space:]]*$//')
-            service_output=$(dns-sd -m -L "$service_name" _ipp._tcp local 2>/dev/null)
-            if echo "$service_output" | grep -q "URF=" && echo "$service_output" | grep -q "pdl="; then
-                found=1
-                break
-            fi
-        fi
-    done < <(dns-sd -m -B _ipp._tcp local 2>/dev/null)
-
-    [ $found -eq 1 ]
-}
 
 # Function to list local shared printers without AirPrint support
 # Finds printers on the system that are shared but do not currently support AirPrint.
@@ -205,11 +186,7 @@ browse_printers() {
     fi
 
     for printer in "${shared_printers[@]}"; do
-        if check_airprint_support "$printer"; then
-            log "Skipping printer '$printer' as it already supports AirPrint."
-        else
-            PRINTERS+=("$printer")
-        fi
+        PRINTERS+=("$printer")
     done
 
     if [ ${#PRINTERS[@]} -eq 0 ]; then
@@ -260,9 +237,10 @@ generate_urf() {
                 IFS=' ' read -r -a color_modes <<< "$(echo "$line" | awk -F': ' '{print $2}')"
                 for color_mode in "${color_modes[@]}"; do
                     case "$color_mode" in
-                        *Gray*) add_urf_code "W8" ;;
-                        *RGB*) add_urf_code "SRGB24" ;;
-                        *CMYK*) add_urf_code "ADOBERGB24" ;;
+                        *Gray*|*Black*) add_urf_code "W8" ;;
+                        *RGB*|*Color*) add_urf_code "SRGB24" ;;
+                        *AdobeRGB*) add_urf_code "ADOBERGB24" ;;
+                        *CMYK*) add_urf_code "CMYK32" ;;
                     esac
                 done
                 ;;
@@ -275,17 +253,42 @@ generate_urf() {
                         *Draft*) add_urf_code "PQ1" ;;
                         *Normal*) add_urf_code "PQ2" ;;
                         *High*) add_urf_code "PQ3" ;;
+                        *Photo*|*Best*) add_urf_code "PQ4" ;;
                     esac
                 done
                 ;;
+
+            # Orientation Options
+            *"Orientation"*|*"orientation"*)
+                IFS=' ' read -r -a orientations <<< "$(echo "$line" | awk -F': ' '{print $2}')"
+                for orient in "${orientations[@]}"; do
+                    case "$orient" in
+                        *Portrait*|*None*) add_urf_code "OR0" ;;
+                        *Landscape*) add_urf_code "OR1" ;;
+                        *ReverseLandscape*) add_urf_code "OR2" ;;
+                        *ReversePortrait*) add_urf_code "OR3" ;;
+                    esac
+                done
+                ;;
+
+            # Resolution Options
+            *"Resolution"*|*"resolution"*)
+                res_values=$(echo "$line" | grep -Eo '[0-9]+dpi' | tr -d 'dpi')
+                for res in $res_values; do
+                    add_urf_code "RS${res}"
+                done
+                ;;
+
             
             # Duplex Mode Options
             *"Duplex"*)
                 IFS=' ' read -r -a duplex_modes <<< "$(echo "$line" | awk -F': ' '{print $2}')"
                 for duplex_mode in "${duplex_modes[@]}"; do
                     case "$duplex_mode" in
-                        *DuplexNoTumble*) add_urf_code "DM1" ;;
+                        *None*|*Off*|*Simplex*) add_urf_code "DM1" ;;
+                        *DuplexNoTumble*) add_urf_code "DM2" ;;
                         *DuplexTumble*) add_urf_code "DM3" ;;
+                        *DuplexManual*) add_urf_code "DM4" ;;
                     esac
                 done
                 ;;
@@ -296,8 +299,16 @@ generate_urf() {
                 for media_size in "${media_sizes[@]}"; do
                     case "$media_size" in
                         *Letter*) add_urf_code "MS_LETTER" ;;
-                        *A4*) add_urf_code "MS_A4" ;;
                         *Legal*) add_urf_code "MS_LEGAL" ;;
+                        *A4*) add_urf_code "MS_A4" ;;
+                        *A3*) add_urf_code "MS_A3" ;;
+                        *A5*) add_urf_code "MS_A5" ;;
+                        *A6*) add_urf_code "MS_A6" ;;
+                        *B5*) add_urf_code "MS_B5" ;;
+                        *Executive*) add_urf_code "MS_EXECUTIVE" ;;
+                        *Tabloid*) add_urf_code "MS_TABLOID" ;;
+                        *4x6*|*4X6*) add_urf_code "MS_4X6" ;;
+                        *5x7*|*5X7*) add_urf_code "MS_5X7" ;;
                     esac
                 done
                 ;;
@@ -316,6 +327,8 @@ generate_urf() {
                         *photographic*) add_urf_code "MT6" ;;
                         *glossy*) add_urf_code "MT7" ;;
                         *matte*) add_urf_code "MT8" ;;
+                        *cardstock*) add_urf_code "MT9" ;;
+                        *letterhead*) add_urf_code "MT10" ;;
                     esac
                 done
                 ;;
@@ -329,6 +342,12 @@ generate_urf() {
                         *tray-1*) add_urf_code "IS2" ;;
                         *tray-2*) add_urf_code "IS3" ;;
                         *Manual*) add_urf_code "IS4" ;;
+                        *tray-3*) add_urf_code "IS5" ;;
+                        *tray-4*) add_urf_code "IS6" ;;
+                        *tray-5*) add_urf_code "IS7" ;;
+                        *envelope*) add_urf_code "IS8" ;;
+                        *multi*|*multipurpose*) add_urf_code "IS9" ;;
+                        *photo*) add_urf_code "IS10" ;;
                     esac
                 done
                 ;;
