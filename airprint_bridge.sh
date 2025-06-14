@@ -4,7 +4,7 @@
 # Enables AirPrint functionality for shared printers on macOS.
 # Author: Eliran Sapir
 # GitHub: https://github.com/sapireli/AirPrint_Bridge/
-# Version: 1.3.1
+# Version: 1.3.2
 # License: MIT
 #
 # This script is designed to make non-AirPrint printers accessible to iOS devices
@@ -516,10 +516,10 @@ uninstall() {
         log "Removed /usr/local/bin/$SCRIPT"
     fi
 
-    # Kill all dns-sd processes related to the AirPrint bridge
-    log "Killing dns-sd processes associated with the AirPrint bridge..."
+    # Kill dns-sd processes advertising AirPrint services
+    log "Killing dns-sd processes advertising $SERVICE..."
     pgrep -f "dns-sd -R" | while read -r pid; do
-        if ps -p "$pid" -o args= | grep -q "/usr/local/bin/$SCRIPT"; then
+        if ps -p "$pid" -o args= | grep -q "$SERVICE"; then
             if kill "$pid" 2>/dev/null; then
                 log "Killed dns-sd process $pid"
             else
@@ -527,6 +527,16 @@ uninstall() {
             fi
         fi
     done
+
+    # Confirm _ipp._tcp services are gone (best effort)
+    if command -v dns-sd >/dev/null 2>&1; then
+        if dns-sd -B "$SERVICE" | grep -q "$SERVICE"; then
+            log "Waiting for $SERVICE services to disappear..."
+            sleep 2
+        else
+            log "All $SERVICE services removed"
+        fi
+    fi
 
     log "Uninstallation complete."
 }
