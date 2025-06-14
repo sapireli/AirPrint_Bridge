@@ -235,14 +235,30 @@ generate_urf() {
             # Color Mode Options
             *"ColorModel"*)
                 IFS=' ' read -r -a color_modes <<< "$(echo "$line" | awk -F': ' '{print $2}')"
+                local color_found=false
+                local gray_found=false
                 for color_mode in "${color_modes[@]}"; do
                     case "$color_mode" in
-                        *Gray*|*Black*) add_urf_code "W8" ;;
-                        *RGB*|*Color*) add_urf_code "SRGB24" ;;
-                        *AdobeRGB*) add_urf_code "ADOBERGB24" ;;
-                        *CMYK*) add_urf_code "CMYK32" ;;
+                        *Gray*|*Black*)
+                            gray_found=true
+                            ;;
+                        *RGB*|*Color*)
+                            add_urf_code "SRGB24"
+                            color_found=true
+                            ;;
+                        *AdobeRGB*)
+                            add_urf_code "ADOBERGB24"
+                            color_found=true
+                            ;;
+                        *CMYK*)
+                            add_urf_code "CMYK32"
+                            color_found=true
+                            ;;
                     esac
                 done
+                if $color_found || $gray_found; then
+                    add_urf_code "W8"
+                fi
                 ;;
             
             # Print Quality Options
