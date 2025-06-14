@@ -157,6 +157,7 @@ Your system will be returned to its original state (i.e., as if AirPrint Bridge 
 - **Permission Issues**: Use `sudo` for installation or uninstallation.
 - **Firewall Issues**: Make sure printer sharing and Bonjour services aren’t blocked in your macOS firewall.
 - **No Output in Log**: If you enabled logging but see no file, ensure the script has permission to create/write the file.
+- **Phantom Printer Remains**: Toggle macOS **Printer Sharing** off and back on if a printer still appears after uninstalling.
 
 ## 📄 License
 
