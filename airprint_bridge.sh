@@ -30,6 +30,8 @@ LOGGING=0  # Set to 0 to disable logging
 LOGFILE="airprint_bridge.log"
 SCRIPT_FILE=""
 CUPS_CONF_CHANGED=0
+HAS_COLOR=0
+HAS_DUPLEX=0
 
 # Function to log messages
 log() {
@@ -206,6 +208,8 @@ generate_urf() {
     local printer="$1"
     local urf=""
     local urf_version="V1.4"
+    HAS_COLOR=0
+    HAS_DUPLEX=0
 
     # Function to add URF code if not already present
     add_urf_code() {
@@ -237,10 +241,21 @@ generate_urf() {
                 IFS=' ' read -r -a color_modes <<< "$(echo "$line" | awk -F':' '{print $2}' | sed 's/^ *//')"
                 for color_mode in "${color_modes[@]}"; do
                     case "$color_mode" in
-                        *Gray*|*Black*) add_urf_code "W8" ;;
-                        *RGB*|*Color*) add_urf_code "SRGB24" ;;
-                        *AdobeRGB*) add_urf_code "ADOBERGB24" ;;
-                        *CMYK*) add_urf_code "CMYK32" ;;
+                        *Gray*|*Black*)
+                            add_urf_code "W8"
+                            ;;
+                        *RGB*|*Color*)
+                            add_urf_code "SRGB24"
+                            HAS_COLOR=1
+                            ;;
+                        *AdobeRGB*)
+                            add_urf_code "ADOBERGB24"
+                            HAS_COLOR=1
+                            ;;
+                        *CMYK*)
+                            add_urf_code "CMYK32"
+                            HAS_COLOR=1
+                            ;;
                     esac
                 done
                 ;;
@@ -277,10 +292,21 @@ generate_urf() {
                 IFS=' ' read -r -a duplex_modes <<< "$(echo "$line" | awk -F':' '{print $2}' | sed 's/^ *//')"
                 for duplex_mode in "${duplex_modes[@]}"; do
                     case "$duplex_mode" in
-                        *None*|*Off*|*Simplex*) add_urf_code "DM1" ;;
-                        *DuplexNoTumble*) add_urf_code "DM2" ;;
-                        *DuplexTumble*) add_urf_code "DM3" ;;
-                        *DuplexManual*) add_urf_code "DM4" ;;
+                        *None*|*Off*|*Simplex*)
+                            add_urf_code "DM1"
+                            ;;
+                        *DuplexNoTumble*)
+                            add_urf_code "DM2"
+                            HAS_DUPLEX=1
+                            ;;
+                        *DuplexTumble*)
+                            add_urf_code "DM3"
+                            HAS_DUPLEX=1
+                            ;;
+                        *DuplexManual*)
+                            add_urf_code "DM4"
+                            HAS_DUPLEX=1
+                            ;;
                     esac
                 done
                 ;;
@@ -390,8 +416,20 @@ resolve_printer() {
     # Get Printer Make and Model
     printer_make_and_model=$(lpoptions -p "$printer_name" | sed -En "s/.*printer-make-and-model=('([^']*)'|([^=]*)) .*/\2\3/p")
 
-    # Generate URF record
+    # Generate URF record and capability flags
     urf=$(generate_urf "$printer_name")
+    local color_flag
+    local duplex_flag
+    if [ "$HAS_COLOR" -eq 1 ]; then
+        color_flag="T"
+    else
+        color_flag="F"
+    fi
+    if [ "$HAS_DUPLEX" -eq 1 ]; then
+        duplex_flag="T"
+    else
+        duplex_flag="F"
+    fi
 
     # AirPrint TXT records
     TXT_RECORDS=(
@@ -403,6 +441,8 @@ resolve_printer() {
         "note=${location} via $(hostname -s)"
         "pdl=application/pdf,image/jpeg,image/urf"
         "URF=$urf"
+        "Color=$color_flag"
+        "Duplex=$duplex_flag"
     )
 
     log "TXT records:"
