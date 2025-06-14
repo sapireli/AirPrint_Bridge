@@ -234,7 +234,7 @@ generate_urf() {
         case "$line" in
             # Color Mode Options
             *"ColorModel"*)
-                IFS=' ' read -r -a color_modes <<< "$(echo "$line" | awk -F': ' '{print $2}')"
+                IFS=' ' read -r -a color_modes <<< "$(echo "$line" | awk -F':' '{print $2}' | sed 's/^ *//')"
                 for color_mode in "${color_modes[@]}"; do
                     case "$color_mode" in
                         *Gray*|*Black*) add_urf_code "W8" ;;
@@ -247,7 +247,7 @@ generate_urf() {
             
             # Print Quality Options
             *"cupsPrintQuality/Quality:"*)
-                IFS=' ' read -r -a qualities <<< "$(echo "$line" | awk -F': ' '{print $2}')"
+                IFS=' ' read -r -a qualities <<< "$(echo "$line" | awk -F':' '{print $2}' | sed 's/^ *//')"
                 for quality in "${qualities[@]}"; do
                     case "$quality" in
                         *Draft*) add_urf_code "PQ1" ;;
@@ -260,7 +260,7 @@ generate_urf() {
 
             # Orientation Options
             *"Orientation"*|*"orientation"*)
-                IFS=' ' read -r -a orientations <<< "$(echo "$line" | awk -F': ' '{print $2}')"
+                IFS=' ' read -r -a orientations <<< "$(echo "$line" | awk -F':' '{print $2}' | sed 's/^ *//')"
                 for orient in "${orientations[@]}"; do
                     case "$orient" in
                         *Portrait*|*None*) add_urf_code "OR0" ;;
@@ -274,7 +274,7 @@ generate_urf() {
            
             # Duplex Mode Options
             *"Duplex"*)
-                IFS=' ' read -r -a duplex_modes <<< "$(echo "$line" | awk -F': ' '{print $2}')"
+                IFS=' ' read -r -a duplex_modes <<< "$(echo "$line" | awk -F':' '{print $2}' | sed 's/^ *//')"
                 for duplex_mode in "${duplex_modes[@]}"; do
                     case "$duplex_mode" in
                         *None*|*Off*|*Simplex*) add_urf_code "DM1" ;;
@@ -287,7 +287,7 @@ generate_urf() {
             
             # Media Size Options
             *"PageSize/Media Size:"*)
-                IFS=' ' read -r -a media_sizes <<< "$(echo "$line" | awk -F': ' '{print $2}')"
+                IFS=' ' read -r -a media_sizes <<< "$(echo "$line" | awk -F':' '{print $2}' | sed 's/^ *//')"
                 for media_size in "${media_sizes[@]}"; do
                     case "$media_size" in
                         *Letter*) add_urf_code "MS_LETTER" ;;
@@ -307,7 +307,7 @@ generate_urf() {
             
             # Media Type Options
             *"MediaType/MediaType:"*)
-                IFS=' ' read -r -a media_types <<< "$(echo "$line" | awk -F': ' '{print $2}')"
+                IFS=' ' read -r -a media_types <<< "$(echo "$line" | awk -F':' '{print $2}' | sed 's/^ *//')"
                 for media_type in "${media_types[@]}"; do
                     case "$media_type" in
                         *stationery*|*any*) add_urf_code "MT0" ;;
@@ -327,7 +327,7 @@ generate_urf() {
             
             # Input Slot (Media Source) Options
             *"InputSlot/Media Source:"*)
-                IFS=' ' read -r -a input_slots <<< "$(echo "$line" | awk -F': ' '{print $2}')"
+                IFS=' ' read -r -a input_slots <<< "$(echo "$line" | awk -F':' '{print $2}' | sed 's/^ *//')"
                 for input_slot in "${input_slots[@]}"; do
                     case "$input_slot" in
                         *auto*) add_urf_code "IS1" ;;
