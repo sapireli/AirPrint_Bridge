@@ -138,7 +138,7 @@ sudo ./airprint_bridge.sh -u
 - Unloads and removes the `launchd` plist file.
 - Deletes the registration script from `/usr/local/bin`.
 - Restores cups config changes if previously modified by script.
-- Terminates any running `dns-sd` processes associated with AirPrint Bridge.
+- Terminates any running `dns-sd` processes associated with AirPrint Bridge. (skips gracefully if none are found)
 
 Your system will be returned to its original state (i.e., as if AirPrint Bridge was never installed).
 
