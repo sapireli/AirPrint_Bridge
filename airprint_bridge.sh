@@ -32,6 +32,7 @@ SCRIPT_FILE=""
 CUPS_CONF_CHANGED=0
 HAS_COLOR=0
 HAS_DUPLEX=0
+URF=""
 
 # Function to log messages
 log() {
@@ -210,6 +211,7 @@ generate_urf() {
     local urf_version="V1.4"
     HAS_COLOR=0
     HAS_DUPLEX=0
+    URF=""
 
     # Function to add URF code if not already present
     add_urf_code() {
@@ -377,11 +379,10 @@ generate_urf() {
 
     # Add URF version if URF codes are present
     if [[ -n "$urf" ]]; then
-        urf="$urf_version,$urf"
+        URF="$urf_version,$urf"
+    else
+        URF="none"
     fi
-
-    # Output the final URF string or 'none' if empty
-    echo "${urf:-none}"
 }
 
 # Function to resolve printer details
@@ -417,7 +418,8 @@ resolve_printer() {
     printer_make_and_model=$(lpoptions -p "$printer_name" | sed -En "s/.*printer-make-and-model=('([^']*)'|([^=]*)) .*/\2\3/p")
 
     # Generate URF record and capability flags
-    urf=$(generate_urf "$printer_name")
+    generate_urf "$printer_name" || { log "Failed to generate URF for $printer_name"; return 1; }
+    urf="$URF"
     local color_flag
     local duplex_flag
     if [ "$HAS_COLOR" -eq 1 ]; then
