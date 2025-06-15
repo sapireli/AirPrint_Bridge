@@ -560,25 +560,23 @@ uninstall() {
 
     # Kill dns-sd processes advertising AirPrint services
     log "Killing dns-sd processes advertising $SERVICE..."
-    pgrep -f "dns-sd -R" | while read -r pid; do
-        if ps -p "$pid" -o args= | grep -q "$SERVICE"; then
-            if kill "$pid" 2>/dev/null; then
-                log "Killed dns-sd process $pid"
-            else
-                log "Failed to kill process $pid"
+    pids=$(pgrep -f "dns-sd -R")
+    if [ -z "$pids" ]; then
+        log "No dns-sd processes found"
+    else
+        for pid in $pids; do
+            if ps -p "$pid" -o args= | grep -q "$SERVICE"; then
+                if kill "$pid" 2>/dev/null; then
+                    log "Killed dns-sd process $pid"
+                else
+                    log "Failed to kill process $pid"
+                fi
             fi
-        fi
-    done
-
-    # Confirm _ipp._tcp services are gone (best effort)
-    if command -v dns-sd >/dev/null 2>&1; then
-        if dns-sd -B "$SERVICE" | grep -q "$SERVICE"; then
-            log "Waiting for $SERVICE services to disappear..."
-            sleep 2
-        else
-            log "All $SERVICE services removed"
-        fi
+        done
     fi
+
+    # Wait briefly to ensure Bonjour ads are removed
+    sleep 2
 
     log "Uninstallation complete."
 }
