@@ -28,14 +28,15 @@ else
     echo "🆕 Creating new gh-pages branch..."
 fi
 
-# Deploy to GitHub Pages
-echo "🌐 Deploying to GitHub Pages..."
-GIT_USER=sapireli USE_SSH=true npm run deploy
+# Deploy to GitHub Pages using gh-pages branch
+echo "🌐 Deploying to GitHub Pages via gh-pages branch..."
+npm run deploy:gh-pages
 
 if [ $? -eq 0 ]; then
     echo "✅ Deployment completed successfully!"
     echo "🌍 Your site should be available at: https://sapireli.github.io/AirPrint_Bridge/"
     echo "⏰ It may take a few minutes for changes to appear."
+    echo "📝 The GitHub Actions workflow will automatically deploy from the gh-pages branch."
 else
     echo "❌ Deployment failed!"
     exit 1

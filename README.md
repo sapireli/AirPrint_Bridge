@@ -119,7 +119,19 @@ npm install
 
 # Start documentation development server
 npm start
+
+# Deploy documentation to GitHub Pages
+./deploy.sh
 ```
+
+### Deployment Process
+
+The documentation is deployed using a two-step process:
+
+1. **Build and Push**: The `deploy.sh` script builds the site and pushes it to the `gh-pages` branch
+2. **GitHub Actions**: A GitHub Actions workflow automatically deploys the site from the `gh-pages` branch to GitHub Pages
+
+This ensures that only the built site files are deployed, keeping the repository clean and the deployment process reliable.
 
 ## 📄 License
 
