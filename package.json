@@ -1,7 +1,7 @@
 {
-  "name": "airprint-bridge-docs",
+  "name": "airprint-bridge",
   "version": "1.0.0",
-  "description": "Documentation for AirPrint Bridge - Seamlessly Enable AirPrint for Non-AirPrint Printers on macOS",
+  "description": "AirPrint Bridge - Seamlessly Enable AirPrint for Non-AirPrint Printers on macOS",
   "private": true,
   "scripts": {
     "docusaurus": "docusaurus",
@@ -9,7 +9,7 @@
     "build": "docusaurus build",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
-    "deploy:gh-pages": "GIT_USER=<GIT_USER> USE_SSH=true npm run deploy",
+    "deploy:gh-pages": "GIT_USER=sapireli USE_SSH=true npm run deploy",
     "clear": "docusaurus clear",
     "serve": "docusaurus serve",
     "write-translations": "docusaurus write-translations",
@@ -58,7 +58,8 @@
     "ipad",
     "iphone",
     "printing",
-    "documentation"
+    "documentation",
+    "docusaurus"
   ],
   "author": "AirPrint Bridge Team",
   "license": "MIT"

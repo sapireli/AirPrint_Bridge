@@ -1,48 +1,16 @@
-# 🖨️ AirPrint Bridge: Seamlessly Enable AirPrint for Non-AirPrint Printers on macOS
-Print Wirelessly from Your iPhone and iPad — No AirPrint Printer Required! 
+# 🖨️ AirPrint Bridge
+
+**Seamlessly Enable AirPrint for Non-AirPrint Printers on macOS**
+
+Print wirelessly from your iPhone and iPad — no AirPrint printer required!
+
+![Bash Script](https://img.shields.io/badge/bash_script-%23121011.svg?style=for-the-badge&logo=gnu-bash&logoColor=white) ![macOS](https://img.shields.io/badge/mac%20os-000000?style=for-the-badge&logo=macos&logoColor=F0F0F0) ![License](https://img.shields.io/badge/license-MIT-blue.svg?style=for-the-badge)
 
 ## 📜 Description
 
-AirPrint Bridge enables AirPrint functionality on macOS for printers that don't natively support it. This script allows iOS and iPadOS devices to print directly to printers that do not natively support AirPrint. The project doesn’t rely on any additional binaries that aren't built in on macOS, uses almost no resources, and is entirely automated. It naturally supports Apple’s Bonjour Sleep Proxy, so printers will continue to work when the host computer is asleep or rebooted (even pre-login).
+AirPrint Bridge enables AirPrint functionality on macOS for printers that don't natively support it. This script allows iOS and iPadOS devices to print directly to printers that do not natively support AirPrint. The project doesn't rely on any additional binaries that aren't built in on macOS, uses almost no resources, and is entirely automated. It naturally supports Apple's Bonjour Sleep Proxy, so printers will continue to work when the host computer is asleep or rebooted (even pre-login).
 
-![Bash Script](https://img.shields.io/badge/bash_script-%23121011.svg?style=for-the-badge&logo=gnu-bash&logoColor=white) ![macOS](https://img.shields.io/badge/mac%20os-000000?style=for-the-badge&logo=macos&logoColor=F0F0F0) 
-
-Developing and maintaining projects of this nature requires time and dedication. If you appreciate the effort, please feel free to show your support by giving this repository a ⭐.
----
-
-## 📋 Table of Contents
-
-- [⭐ Features](#-features)
-- [🛠️ Requirements](#️-requirements)
-- [💾 Installation](#-installation)
-- [⚙️ Additional Options](#️-additional-options)
-- [🗑️ Uninstallation](#️-uninstallation)
-- [💡 How It Works](#-how-it-works)
-- [❓ Troubleshooting](#-troubleshooting)
-- [📄 License](#-license)
-- [🙌 Acknowledgements](#-acknowledgements)
-- [🤝 Contributing](#-contributing)
-- [📜 Trademark Attribution](#-trademark-attribution)
-- [🛡️ Disclaimer](#️-disclaimer)  
-
----
-
-## ⭐ Features
-
-- **Enable AirPrint for Non-AirPrint Printers**: Share printers that do not natively support AirPrint with your iOS devices.
-- **Automatic Detection**: Automatically detects shared printers lacking AirPrint support.
-- **Persistent Service**: Installs as a `launchd` service to ensure AirPrint functionality is always available.
-- **Test Mode**: Run in test mode to verify functionality before installation.
-- **Easy Uninstallation**: Clean removal of the script and associated services.
-- **Bonjour Sleep Proxy**: Automatically registers with the sleep proxy so AirPrint services continue to work when the system is asleep.
-
-## 🛠️ Requirements
-
-- **Operating System**: macOS 10.15 (Catalina) or later. (Not officially tested on macOS versions prior to 10.15, but likely compatible.)
-- **Shell**: Bash.
-- A trusty old **printer**
-
-## 💾 Installation
+## 🚀 Quick Start
 
 ### 1. Share Your Printers
 
@@ -50,82 +18,76 @@ Enable printer sharing via:
 - **System Settings > General > Sharing** (macOS Ventura and newer), or
 - **System Preferences > Sharing** (older macOS versions)
 
-Check the box for **Printer Sharing** and select the printer(s) you’d like to share. Alternatively, visit **System Settings > Printers & Scanners**, select the printer(s), and enable “Share this printer on the network.”
+Check the box for **Printer Sharing** and select the printer(s) you'd like to share.
 
-### 2. Download the Script
-
-Clone the repository or download the `airprint_bridge.sh` script directly:
+### 2. Download and Install
 
 ```bash
+# Clone the repository
 git clone https://github.com/sapireli/AirPrint_Bridge.git
 cd AirPrint_Bridge
-```
 
-### 3. Make the Script Executable
-
-Open **Terminal.app** and navigate to the folder where you saved the script (e.g., `cd Downloads`).
-
-```bash
+# Make the script executable
 chmod +x airprint_bridge.sh
-```
 
-### 4. Test the Script
-
-Run the script in **test mode**:
-
-```bash
+# Test the script first
 sudo ./airprint_bridge.sh -t
-```
 
-What happens:
-
-1. Detects local shared printers that lack AirPrint support.
-2. Checks and fixes firewall and cups config as required
-3. Generates a registration script (`airprint_bridge_launcher.sh`) to register printers via `dns-sd`.
-4. Runs that registration script in the foreground so you can test printing from an iOS device.
-
-The script will now hang while advertising your printers. If you can see and use your printer from iOS, you’re ready to install. **Use `CTRL-C`** to terminate.
-
-### 5. Install the Service
-
-```bash
+# Install the service
 sudo ./airprint_bridge.sh -i
 ```
 
-- Detects local shared printers that lack AirPrint support.
-- Generates (or updates) the registration script.
-- Creates and loads a `launchd` plist so your printers are always advertised at startup/reboot.
-
-### 6. Verify Installation
+### 3. Start Printing
 
 Open an app on your iOS device with printing capabilities (Safari, Mail, Photos, etc.), tap **Print**, and choose the newly advertised printer(s).
-Happy Printing!
 
-## ⚙️ Additional Options
+## ✨ Key Features
 
-### 1. Logging
+- **🖨️ Enable AirPrint for Non-AirPrint Printers**: Share printers that do not natively support AirPrint with your iOS devices
+- **🔍 Automatic Detection**: Automatically detects shared printers lacking AirPrint support
+- **🔄 Persistent Service**: Installs as a `launchd` service to ensure AirPrint functionality is always available
+- **🧪 Test Mode**: Run in test mode to verify functionality before installation
+- **🗑️ Easy Uninstallation**: Clean removal of the script and associated services
+- **💤 Bonjour Sleep Proxy**: Automatically registers with the sleep proxy so AirPrint services continue to work when the system is asleep
 
-By default, **logging** is disabled, so the script outputs only to the terminal (stderr). If you would like to enable verbose logging to a file named `airprint_bridge.log` in the script’s directory, open `airprint_bridge.sh` and set:
+## 📚 Documentation
 
-```bash
-LOGGING=1
-```
+📖 **Full Documentation**: [https://sapireli.github.io/AirPrint_Bridge/](https://sapireli.github.io/AirPrint_Bridge/)
 
-With `LOGGING=1`, any messages output by the script will also be appended to `airprint_bridge.log`. This is helpful for debugging or auditing the script’s activity.
+The documentation includes:
+- 📥 [Installation Guide](https://sapireli.github.io/AirPrint_Bridge/docs/installation)
+- 🔧 [Troubleshooting](https://sapireli.github.io/AirPrint_Bridge/docs/troubleshooting)
+- ⚙️ [Advanced Configuration](https://sapireli.github.io/AirPrint_Bridge/docs/advanced-configuration)
+- 💡 [How It Works](https://sapireli.github.io/AirPrint_Bridge/docs/how-it-works)
+- 🤝 [Contributing Guide](https://sapireli.github.io/AirPrint_Bridge/docs/contributing)
 
-### 2. Custom Script Filename (`-f`)
+## 🛠️ Requirements
 
-The `-f` option allows you to specify a **custom filename and/or location** for the generated AirPrint registration script. By default, the script is named `airprint_bridge_launcher.sh` and is created in the current working directory (then copied to `/usr/local/bin` during installation).
+- **Operating System**: macOS 10.15 (Catalina) or later
+- **Shell**: Bash
+- **Printer**: Any printer that can be shared on macOS
 
-For example, to place the launcher script in a custom path:
+## 💡 How It Works
 
-```bash
-./airprint_bridge.sh -t -f /path/to/custom_launcher.sh
-```
+1. **Printer Detection**: Identifies all shared printers on your Mac; filters out those already AirPrint-capable
+2. **Capability Analysis**: Generates a suitable URF string based on each printer's capabilities (color, duplex, paper types, etc.)
+3. **Bonjour Registration**: Uses `dns-sd` to advertise each printer under the `_ipp._tcp.,_universal` service type
+4. **Launchd Integration**: Automatically starts and keeps the advertising service running in the background, even before user login
+5. **Bonjour Sleep Proxy**: macOS's built-in Bonjour Sleep Proxy keeps these printers discoverable to iOS devices, even if the Mac is sleeping
 
-This tells `airprint_bridge.sh` to generate `/path/to/custom_launcher.sh` rather than the default `airprint_bridge_launcher.sh`. This can be useful if you need the script in a specific location or under a specific name.
+## 🎯 Use Cases
 
-> **Note**: The `-f` option only overrides the generation of the **registration** script, not the main `airprint_bridge.sh` itself.
+- **Home Users**: Enable AirPrint for older printers without buying new hardware
+- **Small Offices**: Share existing network printers with iOS devices
+- **Developers**: Test printing functionality on iOS apps with any printer
+- **Educational Institutions**: Enable students to print from iPads to existing infrastructure
+
+## 🔧 Advanced Features
+
+- **Custom Script Location**: Specify custom paths for the registration script
+- **Verbose Logging**: Enable detailed logging for debugging
+- **Test Mode**: Verify functionality before permanent installation
+- **Clean Uninstallation**: Complete removal of all components
 
 ## 🗑️ Uninstallation
 
@@ -135,41 +97,38 @@ To remove AirPrint Bridge entirely:
 sudo ./airprint_bridge.sh -u
 ```
 
-- Unloads and removes the `launchd` plist file.
-- Deletes the registration script from `/usr/local/bin`.
-- Restores cups config changes if previously modified by script.
-- Terminates any running `dns-sd` processes associated with AirPrint Bridge.
+This will:
+- Unload and remove the `launchd` plist file
+- Delete the registration script from `/usr/local/bin`
+- Restore CUPS configuration changes if previously modified by script
+- Terminate any running `dns-sd` processes associated with AirPrint Bridge
 
-Your system will be returned to its original state (i.e., as if AirPrint Bridge was never installed).
+## 🤝 Contributing
 
-## 💡 How It Works
+We welcome contributions! Please see our [Contributing Guide](https://sapireli.github.io/AirPrint_Bridge/docs/contributing) for details.
 
-1. **Printer Detection**: Identifies all shared printers on your Mac; filters out those already AirPrint-capable.
-2. **Capability Analysis**: Generates a suitable URF string based on each printer’s capabilities (color, duplex, paper types, etc.).
-3. **Bonjour Registration**: Uses `dns-sd` to advertise each printer under the `_ipp._tcp.,_universal` service type.
-4. **Launchd Integration**: Automatically starts and keeps the advertising service running in the background, even before user login.
-5. **Bonjour Sleep Proxy**: macOS’s built-in Bonjour Sleep Proxy keeps these printers discoverable to iOS devices, even if the Mac is sleeping.
+### Development Setup
 
-## ❓ Troubleshooting
+```bash
+# Clone the repository
+git clone https://github.com/sapireli/AirPrint_Bridge.git
+cd AirPrint_Bridge
 
-- **Printers Not Found**: Confirm the printers are installed, powered on, and marked “Shared” on your Mac.
-- **Dependencies Missing**: Ensure that `dns-sd`, `lpstat`, `lpoptions`, and `launchctl` are installed (they are typically standard on macOS).
-- **Permission Issues**: Use `sudo` for installation or uninstallation.
-- **Firewall Issues**: Make sure printer sharing and Bonjour services aren’t blocked in your macOS firewall.
-- **No Output in Log**: If you enabled logging but see no file, ensure the script has permission to create/write the file.
+# Install documentation dependencies
+npm install
+
+# Start documentation development server
+npm start
+```
 
 ## 📄 License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License - see the [License](https://sapireli.github.io/AirPrint_Bridge/docs/license) page for details.
 
 ## 🙌 Acknowledgements
 
 - Inspired by [@PeterCrozier](https://github.com/PeterCrozier/AirPrint)
-- Insights from [GeekBitZone’s AirPrint guide](https://www.geekbitzone.com/posts/2021/macos/airprint/macos-airprint/)
-
-## 🤝 Contributing
-
-Feedback, bug reports, and pull requests are encouraged and appreciated. Feel free to open an issue on GitHub.
+- Insights from [GeekBitZone's AirPrint guide](https://www.geekbitzone.com/posts/2021/macos/airprint/macos-airprint/)
 
 ## 🌟 Give It a Star ⭐
 
@@ -181,42 +140,6 @@ If you find this project useful or interesting, please consider giving it a star
 
 AirPrint, iPhone, iPad, Mac, and macOS are trademarks of Apple Inc., registered in the U.S. and other countries. Bonjour is a trademark of Apple Inc. Other trademarks and trade names may be used in this project to refer to entities claiming the marks and names of their respective products. Use of these trademarks does not imply any affiliation with or endorsement by their respective owners.
 
----
-
 ## 🛡️ Disclaimer
 
 This script is provided "as is," without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, or non-infringement. In no event shall the authors or copyright holders be liable for any claim, damages, or other liability, whether in an action of contract, tort, or otherwise, arising from, out of, or in connection with the software or the use or other dealings in the software.
-
----
-## 🔍 SEO Keywords
-
-- Enable AirPrint for non-AirPrint printers
-- Print from iPhone to shared printer
-- How To Print to iPhone or iPad With or Without AirPrint
-- AirPrint for older printers
-- macOS AirPrint bridge
-- iPad printing non-AirPrint printer
-- Add AirPrint support to printer macOS
-- Print wirelessly from iPhone to any printer
-- Open source AirPrint solution
-- Convert non-AirPrint printers to AirPrint
-- iOS printing non-AirPrint
-- Turn macOS into AirPrint server
-- AirPrint without new hardware
-- free AirPrint solution
-- Enable AirPrint on legacy printers
-- Turn shared printers into AirPrint devices
-- iPhone printing with shared printers
-- Hack to allow AirPrint print sharing on a Mac
-- Airprint Activator
-- Airprint Enabler
-- AirPrint Hacktivator
-- enable AirPrint on older printers
-- make non-AirPrint printers AirPrint compatible
-- print fron an iphone to a non-AirPrint compatible printer
-- free alternative to Handyprint
-- iOS Airprint Sharing on Mac OS
-- iOS AirPrint for Mac
-- enable AirPrint for any printer
-- Airprint proxy
-- How to turn your Mac into an AirPrint server using Airprint Bridge
