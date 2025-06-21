@@ -23,3 +23,12 @@ slorber:
     linkedin: sebastienlorber
     github: slorber
     newsletter: https://thisweekinreact.com
+
+sapireli:
+  name: AirPrint Bridge Team
+  title: AirPrint Bridge Maintainer
+  url: https://github.com/sapireli
+  image_url: https://github.com/sapireli.png
+  page: true
+  socials:
+    github: sapireli

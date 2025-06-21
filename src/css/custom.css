@@ -119,6 +119,207 @@
   color: white;
 }
 
+/* Release page specific styles */
+.release-card {
+  border: 1px solid var(--ifm-color-primary-light);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  background: var(--ifm-background-color);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.release-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--ifm-color-primary) 0%, var(--ifm-color-primary-light) 100%);
+}
+
+.release-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 122, 255, 0.15);
+}
+
+.release-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.release-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--ifm-color-primary);
+  margin: 0;
+}
+
+.release-date {
+  font-size: 0.9rem;
+  color: var(--ifm-color-emphasis-600);
+  background: var(--ifm-color-emphasis-100);
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.release-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.release-tag {
+  background: var(--ifm-color-primary-lightest);
+  color: var(--ifm-color-primary-darkest);
+  padding: 0.25rem 0.75rem;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border: 1px solid var(--ifm-color-primary-lighter);
+}
+
+.release-content {
+  line-height: 1.6;
+}
+
+.release-content h2 {
+  color: var(--ifm-color-primary);
+  font-size: 1.3rem;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid var(--ifm-color-primary-lightest);
+  padding-bottom: 0.5rem;
+}
+
+.release-content h3 {
+  color: var(--ifm-color-primary-dark);
+  font-size: 1.1rem;
+  margin-top: 1.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.release-content ul {
+  margin-left: 1.5rem;
+}
+
+.release-content li {
+  margin-bottom: 0.5rem;
+}
+
+.release-content code {
+  background: var(--ifm-color-emphasis-100);
+  color: var(--ifm-color-primary-dark);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+.release-content pre {
+  background: var(--ifm-color-emphasis-50);
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: 8px;
+  padding: 1rem;
+  overflow-x: auto;
+}
+
+/* Blog/Releases list page */
+.blog-list-page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.blog-list-page h1 {
+  text-align: center;
+  color: var(--ifm-color-primary);
+  margin-bottom: 2rem;
+  font-size: 2.5rem;
+}
+
+.blog-list-page .blog-post-item {
+  margin-bottom: 3rem;
+}
+
+/* Releases grid */
+.releases-grid {
+  display: grid;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.release-subtitle {
+  color: var(--ifm-color-primary-dark);
+  font-size: 1.2rem;
+  margin: 0.5rem 0;
+  font-weight: 600;
+}
+
+.release-description {
+  color: var(--ifm-color-emphasis-700);
+  line-height: 1.6;
+  margin: 1rem 0;
+}
+
+.release-actions {
+  margin-top: 1.5rem;
+  text-align: right;
+}
+
+/* Blog post items styling */
+.blog-post-item {
+  border: 1px solid var(--ifm-color-primary-light);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  background: var(--ifm-background-color);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.blog-post-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--ifm-color-primary) 0%, var(--ifm-color-primary-light) 100%);
+}
+
+.blog-post-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 122, 255, 0.15);
+}
+
+.blog-post-item h2 {
+  color: var(--ifm-color-primary);
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.blog-post-item .blog-post-item-meta {
+  margin-bottom: 1rem;
+}
+
+.blog-post-item .blog-post-item-meta time {
+  color: var(--ifm-color-emphasis-600);
+  background: var(--ifm-color-emphasis-100);
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
   .hero__title {
@@ -127,5 +328,22 @@
   
   .hero__subtitle {
     font-size: 1.2rem;
+  }
+  
+  .release-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .release-title {
+    font-size: 1.3rem;
+  }
+  
+  .blog-list-page h1 {
+    font-size: 2rem;
+  }
+  
+  .releases-grid {
+    grid-template-columns: 1fr;
   }
 }
