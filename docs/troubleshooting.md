@@ -27,6 +27,133 @@ ls -la /usr/local/bin/airprint_bridge_launcher.sh
 sudo ./airprint_bridge.sh -t
 ```
 
+## Homebrew Installation Issues
+
+### 🍺 Homebrew Installation Problems
+
+**Symptoms:**
+- `brew install airprint-bridge` fails
+- Formula not found
+- Installation errors
+
+**Diagnostic Steps:**
+1. **Check if the tap is added:**
+   ```bash
+   brew tap | grep airprint-bridge
+   ```
+
+2. **Verify formula syntax:**
+   ```bash
+   brew audit --strict --online sapireli/airprint-bridge/airprint-bridge
+   ```
+
+3. **Check Homebrew status:**
+   ```bash
+   brew doctor
+   ```
+
+**Solutions:**
+1. **Add the tap manually:**
+   ```bash
+   brew tap sapireli/airprint-bridge
+   ```
+
+2. **Update Homebrew:**
+   ```bash
+   brew update
+   ```
+
+3. **Try verbose installation:**
+   ```bash
+   brew install -v airprint-bridge
+   ```
+
+4. **Clean Homebrew cache:**
+   ```bash
+   brew cleanup
+   ```
+
+### 🍺 Homebrew Permission Issues
+
+**Symptoms:**
+- Permission denied errors during Homebrew installation
+- Cannot write to `/usr/local/bin`
+- Homebrew doctor shows permission warnings
+
+**Solutions:**
+1. **Check Homebrew permissions:**
+   ```bash
+   brew doctor
+   ```
+
+2. **Fix Homebrew permissions:**
+   ```bash
+   sudo chown -R $(whoami) /usr/local
+   ```
+
+3. **Check SIP status:**
+   ```bash
+   csrutil status
+   ```
+
+4. **Reinstall Homebrew if needed:**
+   ```bash
+   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+   ```
+
+### 🍺 Homebrew Update Issues
+
+**Symptoms:**
+- `brew upgrade airprint-bridge` fails
+- Updates don't work properly
+- Service stops working after updates
+
+**Solutions:**
+1. **Reinstall the service after updates:**
+   ```bash
+   # After brew upgrade airprint-bridge
+   sudo airprint-bridge -u
+   sudo airprint-bridge -i
+   ```
+
+2. **Check for conflicting packages:**
+   ```bash
+   brew deps --installed
+   ```
+
+3. **Clean and reinstall:**
+   ```bash
+   brew uninstall airprint-bridge
+   brew install airprint-bridge
+   ```
+
+### 🍺 Homebrew vs Manual Installation Conflicts
+
+**Symptoms:**
+- Both Homebrew and manual installations present
+- Conflicting scripts or services
+- Unexpected behavior
+
+**Solutions:**
+1. **Check for multiple installations:**
+   ```bash
+   which airprint-bridge
+   which airprint_bridge.sh
+   ls -la /usr/local/bin/airprint*
+   ```
+
+2. **Remove manual installation:**
+   ```bash
+   # If you have both, remove manual installation
+   sudo ./airprint_bridge.sh -u  # From manual installation directory
+   rm -rf /path/to/manual/installation
+   ```
+
+3. **Use only Homebrew installation:**
+   ```bash
+   sudo airprint-bridge -i
+   ```
+
 ## Common Issues
 
 ### 🖨️ Printers Not Appearing on iOS Devices
@@ -56,6 +183,11 @@ sudo ./airprint_bridge.sh -t
 - Ensure both devices are on the same network
 - Restart the AirPrint Bridge service:
   ```bash
+  # For Homebrew installation
+  sudo airprint-bridge -u
+  sudo airprint-bridge -i
+  
+  # For manual installation
   sudo ./airprint_bridge.sh -u
   sudo ./airprint_bridge.sh -i
   ```
@@ -71,11 +203,19 @@ sudo ./airprint_bridge.sh -t
 **Solutions:**
 1. **Ensure you're using sudo:**
    ```bash
+   # For Homebrew installation
+   sudo airprint-bridge -i
+   
+   # For manual installation
    sudo ./airprint_bridge.sh -i
    ```
 
 2. **Check script permissions:**
    ```bash
+   # For Homebrew installation
+   ls -la /usr/local/bin/airprint-bridge
+   
+   # For manual installation
    chmod +x airprint_bridge.sh
    ```
 
@@ -111,6 +251,11 @@ sudo ./airprint_bridge.sh -t
 **Solutions:**
 1. **Reinstall the service:**
    ```bash
+   # For Homebrew installation
+   sudo airprint-bridge -u
+   sudo airprint-bridge -i
+   
+   # For manual installation
    sudo ./airprint_bridge.sh -u
    sudo ./airprint_bridge.sh -i
    ```
@@ -163,17 +308,28 @@ sudo ./airprint_bridge.sh -t
 **Solutions:**
 1. **Enable logging:**
    ```bash
-   # Edit the script to enable logging
+   # For Homebrew installation
+   sudo sed -i '' 's/LOGGING=0/LOGGING=1/' /usr/local/bin/airprint-bridge
+   
+   # For manual installation
    sed -i '' 's/LOGGING=0/LOGGING=1/' airprint_bridge.sh
    ```
 
 2. **Check log file location:**
    ```bash
+   # For Homebrew installation
+   ls -la /usr/local/bin/airprint_bridge.log
+   
+   # For manual installation
    ls -la airprint_bridge.log
    ```
 
 3. **View real-time logs:**
    ```bash
+   # For Homebrew installation
+   tail -f /usr/local/bin/airprint_bridge.log
+   
+   # For manual installation
    tail -f airprint_bridge.log
    ```
 
@@ -238,7 +394,10 @@ sudo ./airprint_bridge.sh -t
 Enable verbose output for detailed debugging:
 
 ```bash
-# Run with debug output
+# For Homebrew installation
+sudo bash -x /usr/local/bin/airprint-bridge -t
+
+# For manual installation
 sudo bash -x ./airprint_bridge.sh -t
 ```
 
@@ -272,6 +431,10 @@ If you're still experiencing issues:
 
 1. **Check the logs:**
    ```bash
+   # For Homebrew installation
+   sudo airprint-bridge -t 2>&1 | tee debug.log
+   
+   # For manual installation
    sudo ./airprint_bridge.sh -t 2>&1 | tee debug.log
    ```
 
@@ -282,6 +445,7 @@ If you're still experiencing issues:
 
 3. **Create a GitHub issue** with:
    - macOS version
+   - Installation method (Homebrew or manual)
    - Error messages
    - Debug log output
    - Steps to reproduce
@@ -295,7 +459,8 @@ If you're still experiencing issues:
 - **Monitor logs:** Check logs periodically for issues
 - **Update regularly:** Keep macOS and AirPrint Bridge updated
 - **Document changes:** Note any system changes that might affect printing
+- **Use Homebrew:** Prefer Homebrew installation for easier maintenance
 
 ---
 
-**Still having issues?** Check out our [Installation Guide](/docs/installation) or [Advanced Configuration](/docs/advanced-configuration) for more detailed information. 
+**Still having issues?** Check out our [Installation Guide](/docs/installation), [Homebrew Integration](/docs/homebrew-integration), or [Advanced Configuration](/docs/advanced-configuration) for more detailed information. 

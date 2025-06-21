@@ -20,7 +20,23 @@ Enable printer sharing via:
 
 Check the box for **Printer Sharing** and select the printer(s) you'd like to share.
 
-### 2. Download and Install
+### 2. Install AirPrint Bridge
+
+#### Option A: Install via Homebrew (Recommended)
+
+```bash
+# Add the tap and install
+brew tap sapireli/airprint-bridge
+brew install airprint-bridge
+
+# Test the installation
+sudo airprint-bridge -t
+
+# Install the service
+sudo airprint-bridge -i
+```
+
+#### Option B: Manual Installation
 
 ```bash
 # Clone the repository

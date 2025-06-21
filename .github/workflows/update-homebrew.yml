@@ -1,0 +1,61 @@
+name: Update Homebrew Formula
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  update-homebrew:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout AirPrint Bridge
+        uses: actions/checkout@v4
+        with:
+          repository: sapireli/AirPrint_Bridge
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Calculate SHA256
+        id: sha256
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          VERSION=${VERSION#v}
+          URL="https://github.com/sapireli/AirPrint_Bridge/archive/refs/tags/v${VERSION}.tar.gz"
+          SHA256=$(curl -sL "${URL}" | shasum -a 256 | cut -d' ' -f1)
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "sha256=${SHA256}" >> $GITHUB_OUTPUT
+          echo "url=${URL}" >> $GITHUB_OUTPUT
+
+      - name: Checkout Homebrew Tap
+        uses: actions/checkout@v4
+        with:
+          repository: sapireli/homebrew-airprint-bridge
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          path: homebrew-tap
+
+      - name: Update Formula
+        run: |
+          cd homebrew-tap
+          VERSION=${{ steps.sha256.outputs.version }}
+          SHA256=${{ steps.sha256.outputs.sha256 }}
+          URL=${{ steps.sha256.outputs.url }}
+
+          # Update the formula file
+          sed -i "s|url \".*\"|url \"${URL}\"|" Formula/airprint-bridge.rb
+          sed -i "s|sha256 \".*\"|sha256 \"${SHA256}\"|" Formula/airprint-bridge.rb
+
+          # Update version if needed
+          sed -i "s|version \".*\"|version \"${VERSION}\"|" Formula/airprint-bridge.rb
+
+      - name: Test Formula
+        run: |
+          cd homebrew-tap
+          brew audit --strict --online Formula/airprint-bridge.rb
+
+      - name: Commit and Push Changes
+        run: |
+          cd homebrew-tap
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add Formula/airprint-bridge.rb
+          git commit -m "Update to version ${{ steps.sha256.outputs.version }}"
+          git push origin main

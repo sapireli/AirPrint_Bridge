@@ -36,33 +36,53 @@ First, you need to share your printers on macOS:
 2. Select your printer
 3. Enable "Share this printer on the network"
 
-## Step 2: Download AirPrint Bridge
+## Step 2: Install AirPrint Bridge
 
-### Option A: Clone the Repository (Recommended)
+### Option A: Install via Homebrew (Recommended)
+
+Homebrew provides the easiest and most reliable installation method:
 
 ```bash
+# Add the tap and install
+brew tap sapireli/airprint-bridge
+brew install airprint-bridge
+```
+
+**Benefits of Homebrew installation:**
+- ✅ One-command installation
+- ✅ Automatic updates via `brew upgrade`
+- ✅ Proper dependency management
+- ✅ Easy uninstallation with `brew uninstall airprint-bridge`
+- ✅ Professional distribution channel
+
+### Option B: Manual Installation
+
+If you prefer to install manually or don't have Homebrew:
+
+#### Download AirPrint Bridge
+
+```bash
+# Clone the repository
 git clone https://github.com/sapireli/AirPrint_Bridge.git
 cd AirPrint_Bridge
 ```
 
-### Option B: Download Individual Files
-
-If you prefer to download just the script:
-
-```bash
-curl -O https://raw.githubusercontent.com/sapireli/AirPrint_Bridge/main/airprint_bridge.sh
-```
-
-## Step 3: Make the Script Executable
+#### Make the Script Executable
 
 ```bash
 chmod +x airprint_bridge.sh
 ```
 
-## Step 4: Test the Installation
+## Step 3: Test the Installation
 
 Before installing permanently, test the script to ensure it works with your setup:
 
+### For Homebrew Installation:
+```bash
+sudo airprint-bridge -t
+```
+
+### For Manual Installation:
 ```bash
 sudo ./airprint_bridge.sh -t
 ```
@@ -78,10 +98,16 @@ sudo ./airprint_bridge.sh -t
 - Press `Ctrl+C` to terminate the test
 - If you can see and use your printer from iOS, you're ready to install
 
-## Step 5: Install the Service
+## Step 4: Install the Service
 
 Once testing is successful, install the permanent service:
 
+### For Homebrew Installation:
+```bash
+sudo airprint-bridge -i
+```
+
+### For Manual Installation:
 ```bash
 sudo ./airprint_bridge.sh -i
 ```
@@ -92,7 +118,7 @@ sudo ./airprint_bridge.sh -i
 3. Creates and loads a `launchd` plist
 4. Your printers are now permanently advertised at startup/reboot
 
-## Step 6: Verify Installation
+## Step 5: Verify Installation
 
 1. **On your iOS device:**
    - Open any app with printing capabilities (Safari, Mail, Photos, etc.)
@@ -110,6 +136,12 @@ sudo ./airprint_bridge.sh -i
 
 You can specify a custom location for the registration script:
 
+#### For Homebrew Installation:
+```bash
+sudo airprint-bridge -i -f /path/to/custom_launcher.sh
+```
+
+#### For Manual Installation:
 ```bash
 sudo ./airprint_bridge.sh -i -f /path/to/custom_launcher.sh
 ```
@@ -118,7 +150,9 @@ sudo ./airprint_bridge.sh -i -f /path/to/custom_launcher.sh
 
 To enable verbose logging for debugging:
 
-1. Open `airprint_bridge.sh` in a text editor
+1. Open the script in a text editor:
+   - **Homebrew**: `/usr/local/bin/airprint-bridge`
+   - **Manual**: `airprint_bridge.sh` in your cloned directory
 2. Find the line: `LOGGING=0`
 3. Change it to: `LOGGING=1`
 4. Save the file
@@ -146,6 +180,11 @@ The script automatically configures macOS firewall settings. If you encounter is
 - Ensure both devices are on the same network
 - Restart the AirPrint Bridge service:
   ```bash
+  # For Homebrew installation
+  sudo airprint-bridge -u
+  sudo airprint-bridge -i
+  
+  # For manual installation
   sudo ./airprint_bridge.sh -u
   sudo ./airprint_bridge.sh -i
   ```
@@ -166,7 +205,14 @@ The script automatically configures macOS firewall settings. If you encounter is
 **Solutions:**
 - Check the service status: `sudo launchctl list | grep airprint`
 - View system logs: `sudo log show --predicate 'process == "airprint_bridge"'`
-- Reinstall the service: `sudo ./airprint_bridge.sh -u && sudo ./airprint_bridge.sh -i`
+- Reinstall the service:
+  ```bash
+  # For Homebrew installation
+  sudo airprint-bridge -u && sudo airprint-bridge -i
+  
+  # For manual installation
+  sudo ./airprint_bridge.sh -u && sudo ./airprint_bridge.sh -i
+  ```
 
 ### Network Issues
 
@@ -180,8 +226,16 @@ The script automatically configures macOS firewall settings. If you encounter is
 
 ## Uninstallation
 
-To completely remove AirPrint Bridge:
+### For Homebrew Installation:
+```bash
+# Uninstall the service first
+sudo airprint-bridge -u
 
+# Then remove the package
+brew uninstall airprint-bridge
+```
+
+### For Manual Installation:
 ```bash
 sudo ./airprint_bridge.sh -u
 ```
@@ -191,6 +245,25 @@ This will:
 - Delete the registration script from `/usr/local/bin`
 - Restore CUPS configuration changes
 - Terminate any running `dns-sd` processes
+
+## Updating AirPrint Bridge
+
+### For Homebrew Installation:
+```bash
+# Update Homebrew and upgrade AirPrint Bridge
+brew update
+brew upgrade airprint-bridge
+```
+
+### For Manual Installation:
+```bash
+# Pull the latest changes
+git pull origin main
+
+# Reinstall the service
+sudo ./airprint_bridge.sh -u
+sudo ./airprint_bridge.sh -i
+```
 
 ## Next Steps
 
