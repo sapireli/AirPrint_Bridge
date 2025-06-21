@@ -232,24 +232,6 @@
   overflow-x: auto;
 }
 
-/* Blog/Releases list page */
-.blog-list-page {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 2rem 1rem;
-}
-
-.blog-list-page h1 {
-  text-align: center;
-  color: var(--ifm-color-primary);
-  margin-bottom: 2rem;
-  font-size: 2.5rem;
-}
-
-.blog-list-page .blog-post-item {
-  margin-bottom: 3rem;
-}
-
 /* Releases grid */
 .releases-grid {
   display: grid;
@@ -275,51 +257,6 @@
   text-align: right;
 }
 
-/* Blog post items styling */
-.blog-post-item {
-  border: 1px solid var(--ifm-color-primary-light);
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-bottom: 2rem;
-  background: var(--ifm-background-color);
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.blog-post-item::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, var(--ifm-color-primary) 0%, var(--ifm-color-primary-light) 100%);
-}
-
-.blog-post-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 122, 255, 0.15);
-}
-
-.blog-post-item h2 {
-  color: var(--ifm-color-primary);
-  font-size: 1.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.blog-post-item .blog-post-item-meta {
-  margin-bottom: 1rem;
-}
-
-.blog-post-item .blog-post-item-meta time {
-  color: var(--ifm-color-emphasis-600);
-  background: var(--ifm-color-emphasis-100);
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.9rem;
-}
-
 /* Responsive design */
 @media (max-width: 768px) {
   .hero__title {
@@ -337,10 +274,6 @@
   
   .release-title {
     font-size: 1.3rem;
-  }
-  
-  .blog-list-page h1 {
-    font-size: 2rem;
   }
   
   .releases-grid {

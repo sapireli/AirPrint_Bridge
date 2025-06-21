@@ -46,22 +46,6 @@ const config: Config = {
           // Remove this to remove the "edit this page" links.
           editUrl: "https://github.com/sapireli/AirPrint_Bridge/tree/main/",
         },
-        blog: {
-          showReadingTime: false,
-          feedOptions: {
-            type: ["rss", "atom"],
-            xslt: true,
-            title: "AirPrint Bridge Releases",
-            description: "Release notes and changelog for AirPrint Bridge",
-          },
-          // Please change this to your repo.
-          // Remove this to remove the "edit this page" links.
-          editUrl: "https://github.com/sapireli/AirPrint_Bridge/tree/main/",
-          // Useful options to enforce releases best practices
-          onInlineTags: "warn",
-          onInlineAuthors: "warn",
-          onUntruncatedBlogPosts: "warn",
-        },
         theme: {
           customCss: "./src/css/custom.css",
         },
@@ -85,7 +69,11 @@ const config: Config = {
           position: "left",
           label: "Documentation",
         },
-        { to: "/blog", label: "Releases", position: "left" },
+        {
+          href: "https://github.com/sapireli/AirPrint_Bridge/releases",
+          label: "Releases",
+          position: "left",
+        },
         {
           href: "https://github.com/sapireli/AirPrint_Bridge",
           label: "GitHub",
@@ -135,7 +123,7 @@ const config: Config = {
           items: [
             {
               label: "Releases",
-              to: "/blog",
+              href: "https://github.com/sapireli/AirPrint_Bridge/releases",
             },
             {
               label: "License",
