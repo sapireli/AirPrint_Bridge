@@ -1,0 +1,30 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="90" fill="#007AFF" opacity="0.1"/>
+  
+  <!-- Printer body -->
+  <rect x="40" y="80" width="120" height="80" rx="8" fill="#007AFF" stroke="#007AFF" stroke-width="2"/>
+  
+  <!-- Printer top -->
+  <rect x="35" y="70" width="130" height="20" rx="8" fill="#007AFF" stroke="#007AFF" stroke-width="2"/>
+  
+  <!-- Paper output -->
+  <rect x="70" y="160" width="60" height="8" rx="2" fill="#007AFF"/>
+  
+  <!-- Wireless signal waves -->
+  <g transform="translate(160, 60)">
+    <path d="M0,20 Q5,15 10,20 Q15,25 20,20" stroke="#007AFF" stroke-width="2" fill="none"/>
+    <path d="M0,25 Q7,18 14,25 Q21,32 28,25" stroke="#007AFF" stroke-width="2" fill="none"/>
+    <path d="M0,30 Q9,21 18,30 Q27,39 36,30" stroke="#007AFF" stroke-width="2" fill="none"/>
+  </g>
+  
+  <!-- Bridge icon -->
+  <g transform="translate(50, 50)">
+    <path d="M0,20 L10,10 L20,20 L30,10 L40,20" stroke="#FF6B35" stroke-width="3" fill="none"/>
+    <circle cx="10" cy="10" r="2" fill="#FF6B35"/>
+    <circle cx="30" cy="10" r="2" fill="#FF6B35"/>
+  </g>
+  
+  <!-- Text -->
+  <text x="100" y="190" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#333">AirPrint Bridge</text>
+</svg>

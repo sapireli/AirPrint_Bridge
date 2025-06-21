@@ -1,0 +1,131 @@
+/**
+ * Any CSS included here will be global. The classic template
+ * bundles Infima by default. Infima is a CSS framework designed to
+ * work well for content-centric websites.
+ */
+
+/* You can override the default Infima variables here. */
+:root {
+  --ifm-color-primary: #007AFF;
+  --ifm-color-primary-dark: #0056CC;
+  --ifm-color-primary-darker: #004499;
+  --ifm-color-primary-darkest: #003366;
+  --ifm-color-primary-light: #3399FF;
+  --ifm-color-primary-lighter: #66B3FF;
+  --ifm-color-primary-lightest: #99CCFF;
+  --ifm-code-font-size: 95%;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 122, 255, 0.1);
+}
+
+/* For readability concerns, you should choose a lighter palette in dark mode. */
+[data-theme='dark'] {
+  --ifm-color-primary: #66B3FF;
+  --ifm-color-primary-dark: #3399FF;
+  --ifm-color-primary-darker: #007AFF;
+  --ifm-color-primary-darkest: #0056CC;
+  --ifm-color-primary-light: #99CCFF;
+  --ifm-color-primary-lighter: #CCE5FF;
+  --ifm-color-primary-lightest: #E6F2FF;
+  --docusaurus-highlighted-code-line-bg: rgba(102, 179, 255, 0.3);
+}
+
+/* Custom styles for AirPrint Bridge */
+.hero {
+  background: linear-gradient(135deg, var(--ifm-color-primary) 0%, var(--ifm-color-primary-dark) 100%);
+  color: white;
+  padding: 4rem 0;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero__title {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: white;
+}
+
+.hero__subtitle {
+  font-size: 1.5rem;
+  opacity: 0.9;
+  margin-bottom: 2rem;
+  color: white;
+}
+
+/* Feature badges */
+.feature-badge {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  margin: 0.25rem;
+  background: rgba(0, 122, 255, 0.1);
+  border: 1px solid rgba(0, 122, 255, 0.2);
+  border-radius: 20px;
+  font-size: 0.9rem;
+  color: var(--ifm-color-primary);
+}
+
+/* Code blocks */
+.prism-code {
+  border-radius: 8px;
+  border: 1px solid rgba(0, 122, 255, 0.1);
+}
+
+/* Buttons */
+.button--primary {
+  background: var(--ifm-color-primary);
+  border-color: var(--ifm-color-primary);
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.button--primary:hover {
+  background: var(--ifm-color-primary-dark);
+  border-color: var(--ifm-color-primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+}
+
+/* Cards */
+.card {
+  border-radius: 12px;
+  border: 1px solid rgba(0, 122, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 122, 255, 0.15);
+}
+
+/* Navigation */
+.navbar {
+  box-shadow: 0 2px 8px rgba(0, 122, 255, 0.1);
+}
+
+/* Footer */
+.footer {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+}
+
+/* Dark mode specific adjustments */
+[data-theme='dark'] .hero {
+  background: linear-gradient(135deg, var(--ifm-color-primary) 0%, var(--ifm-color-primary-dark) 100%);
+}
+
+[data-theme='dark'] .hero__title,
+[data-theme='dark'] .hero__subtitle {
+  color: white;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .hero__title {
+    font-size: 2rem;
+  }
+  
+  .hero__subtitle {
+    font-size: 1.2rem;
+  }
+}
