@@ -1,6 +1,8 @@
 # 🖨️ AirPrint Bridge: Seamlessly Enable AirPrint for Non-AirPrint Printers on macOS
 Print Wirelessly from Your iPhone and iPad — No AirPrint Printer Required! 
 
+Also, available at our docs [website](https://sapireli.github.io/AirPrint_Bridge)
+
 ## 📜 Description
 
 AirPrint Bridge enables AirPrint functionality on macOS for printers that don't natively support it. This script allows iOS and iPadOS devices to print directly to printers that do not natively support AirPrint. The project doesn’t rely on any additional binaries that aren't built in on macOS, uses almost no resources, and is entirely automated. It naturally supports Apple’s Bonjour Sleep Proxy, so printers will continue to work when the host computer is asleep or rebooted (even pre-login).
