@@ -71,12 +71,28 @@ Open **Terminal.app** and navigate to the folder where you saved the script (e.g
 chmod +x airprint_bridge.sh
 ```
 
+**Alternative: Install via Homebrew (Recommended)**
+
+If you have Homebrew installed, you can install AirPrint Bridge directly:
+
+```bash
+# Add the tap and install
+brew tap sapireli/AirPrint_Bridge
+brew install airprint-bridge
+```
+
+After Homebrew installation, you can use the `airprint-bridge` command directly.
+
 ### 4. Test the Script
 
 Run the script in **test mode**:
 
 ```bash
+# If installed manually:
 sudo ./airprint_bridge.sh -t
+
+# If installed via Homebrew:
+sudo airprint-bridge -t
 ```
 
 What happens:
@@ -91,7 +107,11 @@ The script will now hang while advertising your printers. If you can see and use
 ### 5. Install the Service
 
 ```bash
+# If installed manually:
 sudo ./airprint_bridge.sh -i
+
+# If installed via Homebrew:
+sudo airprint-bridge -i
 ```
 
 - Detects local shared printers that lack AirPrint support.
@@ -134,7 +154,11 @@ This tells `airprint_bridge.sh` to generate `/path/to/custom_launcher.sh` rather
 To remove AirPrint Bridge entirely:
 
 ```bash
+# If installed manually:
 sudo ./airprint_bridge.sh -u
+
+# If installed via Homebrew:
+sudo airprint-bridge -u
 ```
 
 - Unloads and removes the `launchd` plist file.
