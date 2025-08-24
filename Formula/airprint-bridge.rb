@@ -3,7 +3,7 @@ class AirprintBridge < Formula
   homepage "https://github.com/sapireli/AirPrint_Bridge"
   url "https://github.com/sapireli/AirPrint_Bridge/archive/refs/heads/main.tar.gz"
   version "1.3.2"
-  sha256 "SKIP" # We'll use SKIP for now since this is a development version
+  sha256 "e2abfdd61c32d35359e924dd8d8476a53a25b71768f60c7be08582a0fe7fd624"
   license "MIT"
 
   depends_on :macos
