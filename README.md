@@ -77,11 +77,13 @@ If you have Homebrew installed, you can install AirPrint Bridge directly:
 
 ```bash
 # Add the tap and install
-brew tap sapireli/AirPrint_Bridge
+brew tap sapireli/AirPrint_Bridge https://github.com/sapireli/AirPrint_Bridge.git
 brew install airprint-bridge
 ```
 
 After Homebrew installation, you can use the `airprint-bridge` command directly.
+
+**Note**: If you encounter git authentication issues, the explicit HTTPS URL ensures the tap works without requiring login credentials.
 
 ### 4. Test the Script
 
