@@ -44,7 +44,7 @@ Homebrew provides the easiest and most reliable installation method:
 
 ```bash
 # Add the tap and install
-brew tap sapireli/airprint-bridge
+brew tap sapireli/AirPrint_Bridge https://github.com/sapireli/AirPrint_Bridge.git
 brew install airprint-bridge
 ```
 

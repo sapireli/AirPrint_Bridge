@@ -21,15 +21,17 @@ Homebrew is a package manager for macOS that simplifies the installation of soft
 
 ```bash
 # Add the tap and install
-brew tap sapireli/airprint-bridge
+brew tap sapireli/AirPrint_Bridge https://github.com/sapireli/AirPrint_Bridge.git
 brew install airprint-bridge
 ```
+
+**Note**: The explicit HTTPS URL ensures the tap works without requiring git authentication credentials, even though the repository is public.
 
 ### Step-by-Step Installation
 
 1. **Add the tap** (if not already added):
    ```bash
-   brew tap sapireli/airprint-bridge
+   brew tap sapireli/AirPrint_Bridge https://github.com/sapireli/AirPrint_Bridge.git
    ```
 
 2. **Install AirPrint Bridge**:
@@ -74,6 +76,39 @@ brew uninstall airprint-bridge
 - Available to all Homebrew users
 - Automatic formula validation
 - Consistent installation experience
+
+## Troubleshooting
+
+### Git Authentication Issues
+
+If you encounter git authentication prompts when tapping:
+
+```bash
+# Force HTTPS instead of SSH
+git config --global url."https://github.com/".insteadOf git@github.com:
+
+# Clear any cached credentials
+git config --global --unset credential.helper
+
+# Then try tapping again
+brew tap sapireli/AirPrint_Bridge https://github.com/sapireli/AirPrint_Bridge.git
+```
+
+### Alternative Tapping Method
+
+If you continue to have issues, you can also clone and tap locally:
+
+```bash
+# Clone the repository
+git clone https://github.com/sapireli/AirPrint_Bridge.git
+cd AirPrint_Bridge
+
+# Tap from local directory
+brew tap sapireli/AirPrint_Bridge .
+
+# Install
+brew install airprint-bridge
+```
 
 ## Using AirPrint Bridge with Homebrew
 
