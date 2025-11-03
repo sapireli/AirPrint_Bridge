@@ -33,6 +33,107 @@ CUPS_CONF_CHANGED=0
 HAS_COLOR=0
 HAS_DUPLEX=0
 URF=""
+ADVERTISED_NAME=""
+
+# Helper to percent-encode strings for resource paths
+percent_encode() {
+    local input="$1"
+    local output=""
+    local i char hex
+
+    for ((i = 0; i < ${#input}; i++)); do
+        char=${input:i:1}
+        case "$char" in
+            [a-zA-Z0-9._~-])
+                output+="$char"
+                ;;
+            *)
+                local decimal
+                decimal=$(printf '%s' "$char" | LC_ALL=C od -An -t u1)
+                decimal=${decimal//[[:space:]]/}
+                printf -v hex '%02X' "$decimal"
+                output+="%$hex"
+                ;;
+        esac
+    done
+
+    printf '%s\n' "$output"
+}
+
+# Helper to shell-escape arguments when emitting scripts
+shell_escape() {
+    local value="$1"
+    printf '%q\n' "$value"
+}
+
+# Remove control characters and trim whitespace for TXT fields
+sanitize_txt_value() {
+    local value="$1"
+
+    value=${value//$'\r'/$' '}
+    value=${value//$'\n'/$' '}
+    value=${value//$'\t'/$' '}
+    value=$(printf '%s' "$value" | LC_ALL=C sed $'s/[\001-\037\177]/ /g')
+    value=$(printf '%s' "$value" | sed 's/[[:space:]]\+/ /g; s/^ //; s/ $//')
+
+    printf '%s\n' "$value"
+}
+
+# Parse device URIs and emit HOST/PORT assignments
+parse_device_uri() {
+    local uri="$1"
+    local scheme=""
+    local remainder="$uri"
+    local host_port=""
+    local host=""
+    local port=""
+
+    if [[ "$remainder" == *"://"* ]]; then
+        scheme=${remainder%%://*}
+        remainder=${remainder#*://}
+    fi
+
+    host_port=${remainder%%/*}
+
+    if [[ "$host_port" == \[*\]* ]]; then
+        host=${host_port%%]*}
+        host=${host#[}
+        local after_bracket=${host_port#*]}
+        if [[ "$after_bracket" == :* ]]; then
+            port=${after_bracket#:}
+        fi
+    else
+        if [[ "$host_port" == *:* ]]; then
+            host=${host_port%%:*}
+            port=${host_port##*:}
+        else
+            host=$host_port
+        fi
+    fi
+
+    case "$scheme" in
+        ipp|ipps)
+            [[ -z "$port" ]] && port=631
+            ;;
+        http)
+            [[ -z "$port" ]] && port=80
+            ;;
+        https)
+            [[ -z "$port" ]] && port=443
+            ;;
+        socket)
+            [[ -z "$port" ]] && port=9100
+            ;;
+        lpd)
+            [[ -z "$port" ]] && port=515
+            ;;
+    esac
+
+    [[ -z "$port" ]] && port=0
+
+    printf 'HOST=%s\n' "$host"
+    printf 'PORT=%s\n' "$port"
+}
 
 # Function to log messages
 log() {
@@ -207,182 +308,246 @@ browse_printers() {
 # This inspects printer options (color mode, media, etc.) and builds a URF record.
 generate_urf() {
     local printer="$1"
-    local urf=""
-    local urf_version="V1.4"
     HAS_COLOR=0
     HAS_DUPLEX=0
     URF=""
 
-    # Function to add URF code if not already present
-    add_urf_code() {
-        local code="$1"
-        [[ "$urf" != *"$code,"* ]] && urf+="$code,"
-    }
-
-    # Validate printer name
     if [[ -z "$printer" ]]; then
         log "No printer specified."
         return 1
     fi
 
-    # Check if the printer exists
     if ! lpstat -p "$printer" >/dev/null 2>&1; then
         log "Printer '$printer' does not exist"
         return 1
     fi
 
-    # Retrieve printer capabilities
-    options=$(lpoptions -l -p "$printer" 2>/dev/null) || { log "Unable to get options for '$printer'."; return 1; }
+    local lpoptions_output
+    if ! lpoptions_output=$(lpoptions -l -p "$printer" 2>/dev/null); then
+        log "Unable to query options for '$printer'"
+        return 1
+    fi
 
-    # Parse each line of the lpoptions output
-    # Update URF codes based on supported print qualities, media types, etc.
+    local parsed_choices=""
     while IFS= read -r line; do
-        case "$line" in
-            # Color Mode Options
-            *"ColorModel"*)
-                IFS=' ' read -r -a color_modes <<< "$(echo "$line" | awk -F':' '{print $2}' | sed 's/^ *//')"
-                for color_mode in "${color_modes[@]}"; do
-                    case "$color_mode" in
-                        *Gray*|*Black*)
-                            add_urf_code "W8"
-                            ;;
-                        *RGB*|*Color*)
-                            add_urf_code "SRGB24"
-                            HAS_COLOR=1
-                            ;;
-                        *AdobeRGB*)
-                            add_urf_code "ADOBERGB24"
-                            HAS_COLOR=1
-                            ;;
-                        *CMYK*)
-                            add_urf_code "CMYK32"
-                            HAS_COLOR=1
-                            ;;
-                    esac
-                done
-                ;;
-            
-            # Print Quality Options
-            *"cupsPrintQuality/Quality:"*)
-                IFS=' ' read -r -a qualities <<< "$(echo "$line" | awk -F':' '{print $2}' | sed 's/^ *//')"
-                for quality in "${qualities[@]}"; do
-                    case "$quality" in
-                        *Draft*) add_urf_code "PQ1" ;;
-                        *Normal*) add_urf_code "PQ2" ;;
-                        *High*) add_urf_code "PQ3" ;;
-                        *Photo*|*Best*) add_urf_code "PQ4" ;;
-                    esac
-                done
-                ;;
+        [[ "$line" == *:* ]] || continue
+        local option="${line%%:*}"
+        option="${option%%/*}"
+        local rest="${line#*:}"
+        read -r -a tokens <<< "$rest"
+        local token
+        for token in "${tokens[@]}"; do
+            token=${token#\*}
+            [[ "$token" == */* ]] || continue
+            local canonical="${token%%/*}"
+            [[ -z "$canonical" ]] && continue
+            parsed_choices+="$option:$canonical"$'\n'
+        done
+    done <<< "$lpoptions_output"
 
-            # Orientation Options
-            *"Orientation"*|*"orientation"*)
-                IFS=' ' read -r -a orientations <<< "$(echo "$line" | awk -F':' '{print $2}' | sed 's/^ *//')"
-                for orient in "${orientations[@]}"; do
-                    case "$orient" in
-                        *Portrait*|*None*) add_urf_code "OR0" ;;
-                        *Landscape*) add_urf_code "OR1" ;;
-                        *ReverseLandscape*) add_urf_code "OR2" ;;
-                        *ReversePortrait*) add_urf_code "OR3" ;;
-                    esac
-                done
-                ;;
+    local codes=()
+    add_code() {
+        local code="$1"
+        local existing
+        [[ -z "$code" ]] && return
+        for existing in "${codes[@]}"; do
+            [[ "$existing" == "$code" ]] && return
+        done
+        codes+=("$code")
+    }
 
-           
-            # Duplex Mode Options
-            *"Duplex"*)
-                IFS=' ' read -r -a duplex_modes <<< "$(echo "$line" | awk -F':' '{print $2}' | sed 's/^ *//')"
-                for duplex_mode in "${duplex_modes[@]}"; do
-                    case "$duplex_mode" in
-                        *None*|*Off*|*Simplex*)
-                            add_urf_code "DM1"
-                            ;;
-                        *DuplexNoTumble*)
-                            add_urf_code "DM2"
-                            HAS_DUPLEX=1
-                            ;;
-                        *DuplexTumble*)
-                            add_urf_code "DM3"
-                            HAS_DUPLEX=1
-                            ;;
-                        *DuplexManual*)
-                            add_urf_code "DM4"
-                            HAS_DUPLEX=1
-                            ;;
-                    esac
-                done
-                ;;
-            
-            # Media Size Options
-            *"PageSize/Media Size:"*)
-                IFS=' ' read -r -a media_sizes <<< "$(echo "$line" | awk -F':' '{print $2}' | sed 's/^ *//')"
-                for media_size in "${media_sizes[@]}"; do
-                    case "$media_size" in
-                        *Letter*) add_urf_code "MS_LETTER" ;;
-                        *Legal*) add_urf_code "MS_LEGAL" ;;
-                        *A4*) add_urf_code "MS_A4" ;;
-                        *A3*) add_urf_code "MS_A3" ;;
-                        *A5*) add_urf_code "MS_A5" ;;
-                        *A6*) add_urf_code "MS_A6" ;;
-                        *B5*) add_urf_code "MS_B5" ;;
-                        *Executive*) add_urf_code "MS_EXECUTIVE" ;;
-                        *Tabloid*) add_urf_code "MS_TABLOID" ;;
-                        *4x6*|*4X6*) add_urf_code "MS_4X6" ;;
-                        *5x7*|*5X7*) add_urf_code "MS_5X7" ;;
-                    esac
-                done
-                ;;
-            
-            # Media Type Options
-            *"MediaType/MediaType:"*)
-                IFS=' ' read -r -a media_types <<< "$(echo "$line" | awk -F':' '{print $2}' | sed 's/^ *//')"
-                for media_type in "${media_types[@]}"; do
-                    case "$media_type" in
-                        *stationery*|*any*) add_urf_code "MT0" ;;
-                        *plain*) add_urf_code "MT1" ;;
-                        *recycled*) add_urf_code "MT2" ;;
-                        *transparency*) add_urf_code "MT3" ;;
-                        *labels*) add_urf_code "MT4" ;;
-                        *envelope*) add_urf_code "MT5" ;;
-                        *photographic*) add_urf_code "MT6" ;;
-                        *glossy*) add_urf_code "MT7" ;;
-                        *matte*) add_urf_code "MT8" ;;
-                        *cardstock*) add_urf_code "MT9" ;;
-                        *letterhead*) add_urf_code "MT10" ;;
-                    esac
-                done
-                ;;
-            
-            # Input Slot (Media Source) Options
-            *"InputSlot/Media Source:"*)
-                IFS=' ' read -r -a input_slots <<< "$(echo "$line" | awk -F':' '{print $2}' | sed 's/^ *//')"
-                for input_slot in "${input_slots[@]}"; do
-                    case "$input_slot" in
-                        *auto*) add_urf_code "IS1" ;;
-                        *tray-1*) add_urf_code "IS2" ;;
-                        *tray-2*) add_urf_code "IS3" ;;
-                        *Manual*) add_urf_code "IS4" ;;
-                        *tray-3*) add_urf_code "IS5" ;;
-                        *tray-4*) add_urf_code "IS6" ;;
-                        *tray-5*) add_urf_code "IS7" ;;
-                        *envelope*) add_urf_code "IS8" ;;
-                        *multi*|*multipurpose*) add_urf_code "IS9" ;;
-                        *photo*) add_urf_code "IS10" ;;
-                    esac
-                done
-                ;;
-        esac
-    done <<< "$options"
+    local has_color=0
+    local has_duplex=0
 
-    # Remove trailing comma from URF string
-    urf=${urf%,}
+    while IFS= read -r choice; do
+        [[ -z "$choice" ]] && continue
+        local lower_choice
+        lower_choice=$(printf '%s' "$choice" | tr '[:upper:]' '[:lower:]')
+        if [[ "$lower_choice" == "k" || "$lower_choice" == "mono" || "$lower_choice" == "monochrome" ||
+              "$lower_choice" == "gray" || "$lower_choice" == "grey" || "$lower_choice" == "black" ||
+              "$lower_choice" == *"gray"* || "$lower_choice" == *"grey"* || "$lower_choice" == *"mono"* ||
+              "$lower_choice" == *"black"* ]]; then
+            add_code "W8"
+        fi
+        if [[ "$lower_choice" == *"adobe"* ]]; then
+            add_code "ADOBERGB24"
+            has_color=1
+        fi
+        if [[ "$lower_choice" == *"srgb"* || "$lower_choice" == *"rgb"* || "$lower_choice" == *"color"* ]]; then
+            add_code "SRGB24"
+            has_color=1
+        fi
+        if [[ "$lower_choice" == *"cmyk"* ]]; then
+            add_code "CMYK32"
+            has_color=1
+        fi
+    done < <(printf '%s' "$parsed_choices" | awk -F':' '$1=="ColorModel" || $1=="OutputMode" || $1=="ColorMode" || $1=="Color" {print $2}')
 
-    # Add URF version if URF codes are present
-    if [[ -n "$urf" ]]; then
-        URF="$urf_version,$urf"
+    while IFS= read -r choice; do
+        [[ -z "$choice" ]] && continue
+        local lower_choice
+        lower_choice=$(printf '%s' "$choice" | tr '[:upper:]' '[:lower:]')
+        if [[ "$lower_choice" == *"draft"* || "$lower_choice" == *"fast"* ]]; then
+            add_code "PQ1"
+        elif [[ "$lower_choice" == *"normal"* || "$lower_choice" == *"standard"* ]]; then
+            add_code "PQ2"
+        elif [[ "$lower_choice" == *"high"* ]]; then
+            add_code "PQ3"
+        elif [[ "$lower_choice" == *"best"* || "$lower_choice" == *"photo"* ]]; then
+            add_code "PQ4"
+        fi
+    done < <(printf '%s' "$parsed_choices" | awk -F':' '$1=="cupsPrintQuality" || $1=="PrintQuality" || $1=="Quality" {print $2}')
+
+    while IFS= read -r choice; do
+        [[ -z "$choice" ]] && continue
+        local lower_choice
+        lower_choice=$(printf '%s' "$choice" | tr '[:upper:]' '[:lower:]')
+        if [[ "$lower_choice" == *"portrait"* || "$lower_choice" == "none" ]]; then
+            add_code "OR0"
+        fi
+        if [[ "$lower_choice" == *"landscape"* && "$lower_choice" != *"reverse"* ]]; then
+            add_code "OR1"
+        fi
+        if [[ "$lower_choice" == *"reverse"* && "$lower_choice" == *"landscape"* ]]; then
+            add_code "OR2"
+        fi
+        if [[ "$lower_choice" == *"reverse"* && "$lower_choice" == *"portrait"* ]]; then
+            add_code "OR3"
+        fi
+    done < <(printf '%s' "$parsed_choices" | awk -F':' '$1=="Orientation" || $1=="orientation-requested" {print $2}')
+
+    while IFS= read -r choice; do
+        [[ -z "$choice" ]] && continue
+        local lower_choice
+        lower_choice=$(printf '%s' "$choice" | tr '[:upper:]' '[:lower:]')
+        if [[ "$lower_choice" == *"simplex"* || "$lower_choice" == "none" || "$lower_choice" == *"off"* ]]; then
+            add_code "DM1"
+        fi
+        if [[ "$lower_choice" == *"notumble"* || "$lower_choice" == *"long"* ]]; then
+            add_code "DM2"
+            has_duplex=1
+        fi
+        if [[ "$lower_choice" == *"tumble"* || "$lower_choice" == *"short"* ]]; then
+            add_code "DM3"
+            has_duplex=1
+        fi
+        if [[ "$lower_choice" == *"manual"* ]]; then
+            add_code "DM4"
+            has_duplex=1
+        fi
+    done < <(printf '%s' "$parsed_choices" | awk -F':' '$1=="Duplex" || $1=="Duplexer" || $1=="EFDuplex" {print $2}')
+
+    if [[ $has_duplex -eq 1 ]]; then
+        local found_dm1=0
+        local code
+        for code in "${codes[@]}"; do
+            if [[ "$code" == "DM1" ]]; then
+                found_dm1=1
+                break
+            fi
+        done
+        if [[ $found_dm1 -eq 0 ]]; then
+            add_code "DM1"
+        fi
+    fi
+
+    while IFS= read -r choice; do
+        [[ -z "$choice" ]] && continue
+        local lower_choice
+        lower_choice=$(printf '%s' "$choice" | tr '[:upper:]' '[:lower:]')
+        if [[ "$lower_choice" == *"letter"* || "$lower_choice" == *"8.5x11"* ]]; then
+            add_code "MS_LETTER"
+        elif [[ "$lower_choice" == *"legal"* || "$lower_choice" == *"8.5x14"* ]]; then
+            add_code "MS_LEGAL"
+        elif [[ "$lower_choice" == *"a4"* ]]; then
+            add_code "MS_A4"
+        elif [[ "$lower_choice" == *"a3"* ]]; then
+            add_code "MS_A3"
+        elif [[ "$lower_choice" == *"a5"* ]]; then
+            add_code "MS_A5"
+        elif [[ "$lower_choice" == *"a6"* ]]; then
+            add_code "MS_A6"
+        elif [[ "$lower_choice" == *"b5"* ]]; then
+            add_code "MS_B5"
+        elif [[ "$lower_choice" == *"executive"* ]]; then
+            add_code "MS_EXECUTIVE"
+        elif [[ "$lower_choice" == *"tabloid"* ]]; then
+            add_code "MS_TABLOID"
+        elif [[ "$lower_choice" == *"4x6"* || "$lower_choice" == *"10x15"* ]]; then
+            add_code "MS_4X6"
+        elif [[ "$lower_choice" == *"5x7"* ]]; then
+            add_code "MS_5X7"
+        fi
+    done < <(printf '%s' "$parsed_choices" | awk -F':' '$1=="PageSize" || $1=="PageRegion" || $1=="PaperSize" {print $2}')
+
+    while IFS= read -r choice; do
+        [[ -z "$choice" ]] && continue
+        local lower_choice
+        lower_choice=$(printf '%s' "$choice" | tr '[:upper:]' '[:lower:]')
+        if [[ "$lower_choice" == *"stationery"* || "$lower_choice" == *"any"* ]]; then
+            add_code "MT0"
+        elif [[ "$lower_choice" == *"plain"* ]]; then
+            add_code "MT1"
+        elif [[ "$lower_choice" == *"recycled"* ]]; then
+            add_code "MT2"
+        elif [[ "$lower_choice" == *"transparency"* ]]; then
+            add_code "MT3"
+        elif [[ "$lower_choice" == *"label"* ]]; then
+            add_code "MT4"
+        elif [[ "$lower_choice" == *"envelope"* ]]; then
+            add_code "MT5"
+        elif [[ "$lower_choice" == *"photo"* ]]; then
+            add_code "MT6"
+        elif [[ "$lower_choice" == *"gloss"* ]]; then
+            add_code "MT7"
+        elif [[ "$lower_choice" == *"matte"* ]]; then
+            add_code "MT8"
+        elif [[ "$lower_choice" == *"card"* ]]; then
+            add_code "MT9"
+        elif [[ "$lower_choice" == *"letterhead"* ]]; then
+            add_code "MT10"
+        fi
+    done < <(printf '%s' "$parsed_choices" | awk -F':' '$1=="MediaType" || $1=="HPMediaType" || $1=="PaperType" {print $2}')
+
+    while IFS= read -r choice; do
+        [[ -z "$choice" ]] && continue
+        local lower_choice
+        lower_choice=$(printf '%s' "$choice" | tr '[:upper:]' '[:lower:]')
+        if [[ "$lower_choice" == *"auto"* || "$lower_choice" == *"autoselect"* || "$lower_choice" == "default" ]]; then
+            add_code "IS1"
+        elif [[ "$lower_choice" == *"tray-1"* || "$lower_choice" == *"tray1"* || "$lower_choice" == *"upper"* || "$lower_choice" == *"main"* ]]; then
+            add_code "IS2"
+        elif [[ "$lower_choice" == *"tray-2"* || "$lower_choice" == *"tray2"* || "$lower_choice" == *"lower"* ]]; then
+            add_code "IS3"
+        elif [[ "$lower_choice" == *"manual"* || "$lower_choice" == *"manualfeed"* ]]; then
+            add_code "IS4"
+        elif [[ "$lower_choice" == *"tray-3"* || "$lower_choice" == *"tray3"* || "$lower_choice" == *"middle"* ]]; then
+            add_code "IS5"
+        elif [[ "$lower_choice" == *"tray-4"* || "$lower_choice" == *"tray4"* ]]; then
+            add_code "IS6"
+        elif [[ "$lower_choice" == *"tray-5"* || "$lower_choice" == *"tray5"* ]]; then
+            add_code "IS7"
+        elif [[ "$lower_choice" == *"envelope"* ]]; then
+            add_code "IS8"
+        elif [[ "$lower_choice" == *"bypass"* || "$lower_choice" == *"multipurpose"* || "$lower_choice" == "mp" ]]; then
+            add_code "IS9"
+        elif [[ "$lower_choice" == *"photo"* ]]; then
+            add_code "IS10"
+        fi
+    done < <(printf '%s' "$parsed_choices" | awk -F':' '$1=="InputSlot" || $1=="MediaSource" || $1=="Tray" {print $2}')
+
+    if [[ ${#codes[@]} -gt 0 ]]; then
+        local saved_ifs="$IFS"
+        IFS=','
+        local joined="${codes[*]}"
+        IFS="$saved_ifs"
+        URF="V1.4,$joined"
     else
         URF="none"
     fi
+
+    HAS_COLOR=$has_color
+    HAS_DUPLEX=$has_duplex
 }
 
 # Function to resolve printer details
@@ -394,28 +559,59 @@ resolve_printer() {
     log "Resolving \"$printer_name\"..."
 
     # Get device URI
-    device_uri=$(lpstat -v "$printer_name" | awk '{print $3}' | sed 's/.$//')
+    device_uri=$(lpstat -v "$printer_name" 2>/dev/null | awk -F': ' 'NR==1 {print $2}')
+    device_uri=$(sanitize_txt_value "$device_uri")
     log "Device URI: $device_uri"
 
     # Determine target host and port
-    if [[ "$device_uri" =~ ^ipps?:// ]]; then
-        PORT=$(echo "$device_uri" | awk -F[/:] '{print $5}')
-        PORT=${PORT:-631}
-    else
-        PORT=631
+    TARGET_HOST=""
+    PORT=""
+    if [[ -n "$device_uri" ]]; then
+        local uri_components
+        uri_components=$(parse_device_uri "$device_uri")
+        while IFS='=' read -r key value; do
+            case "$key" in
+                HOST) TARGET_HOST="$value" ;;
+                PORT) PORT="$value" ;;
+            esac
+        done <<< "$uri_components"
     fi
 
+    if [[ -z "$PORT" || "$PORT" == "0" ]]; then
+        PORT=631
+    fi
+    if [[ -n "$TARGET_HOST" ]]; then
+        TARGET_HOST=$(sanitize_txt_value "$TARGET_HOST")
+    fi
+    if [[ -n "$TARGET_HOST" ]]; then
+        log "Target host: $TARGET_HOST"
+    fi
+    log "Port: $PORT"
+
     # Get printer description
-    printer_desc=$(lpstat -l -p "$printer_name" | awk -F'Description:' '/Description:/ {gsub(/^ +| +$/,"",$2); print $2}')
-    printer_desc="${printer_desc:-$printer_name @ $(hostname -s)}"
+    local raw_desc
+    raw_desc=$(lpstat -l -p "$printer_name" | awk -F'Description:' '/Description:/ {gsub(/^ +| +$/,"",$2); print $2; exit}')
+    if [[ -z "$raw_desc" ]]; then
+        raw_desc="$printer_name"
+    fi
+    printer_desc=$(sanitize_txt_value "$raw_desc")
+    local host_short
+    host_short=$(sanitize_txt_value "$(hostname -s)")
+    ADVERTISED_NAME=$(sanitize_txt_value "$printer_desc @ $host_short")
+    if [[ -z "$ADVERTISED_NAME" ]]; then
+        ADVERTISED_NAME=$(sanitize_txt_value "$printer_name @ $host_short")
+    fi
     log "Description: $printer_desc"
 
     # Get location
-    location=$(lpstat -l -p "$printer_name" | awk -F'Location:' '/Location:/ {gsub(/^ +| +$/,"",$2); print $2}')
+    local raw_location
+    raw_location=$(lpstat -l -p "$printer_name" | awk -F'Location:' '/Location:/ {gsub(/^ +| +$/,"",$2); print $2; exit}')
+    location=$(sanitize_txt_value "$raw_location")
     log "Location: $location"
 
     # Get Printer Make and Model
     printer_make_and_model=$(lpoptions -p "$printer_name" | sed -En "s/.*printer-make-and-model=('([^']*)'|([^=]*)) .*/\2\3/p")
+    printer_make_and_model=$(sanitize_txt_value "$printer_make_and_model")
 
     # Generate URF record and capability flags
     generate_urf "$printer_name" || { log "Failed to generate URF for $printer_name"; return 1; }
@@ -434,13 +630,29 @@ resolve_printer() {
     fi
 
     # AirPrint TXT records
+    local encoded_resource_path
+    encoded_resource_path=$(percent_encode "$printer_name")
+    local ty_value
+    ty_value=${printer_make_and_model:-$printer_desc}
+    ty_value=$(sanitize_txt_value "$ty_value")
+    local product_value
+    product_value="(${ty_value})"
+    product_value=$(sanitize_txt_value "$product_value")
+    local note_value
+    if [[ -n "$location" ]]; then
+        note_value="$location via $host_short"
+    else
+        note_value="Shared via $host_short"
+    fi
+    note_value=$(sanitize_txt_value "$note_value")
+
     TXT_RECORDS=(
         "txtvers=1"
         "qtotal=1"
-        "rp=printers/$printer_name"
-        "ty=$printer_make_and_model"
-        "product=($printer_make_and_model)"
-        "note=${location} via $(hostname -s)"
+        "rp=printers/$encoded_resource_path"
+        "ty=$ty_value"
+        "product=$product_value"
+        "note=$note_value"
         "pdl=application/pdf,image/jpeg,image/urf"
         "URF=$urf"
         "Color=$color_flag"
@@ -469,10 +681,15 @@ generate_script() {
             fi
             txt_record_str=""
             for txt in "${TXT_RECORDS[@]}"; do
-                txt_record_str+="\"$txt\" "
+                txt_record_str+=" $(shell_escape "$txt")"
             done
-            safe_printer_desc=$(printf "%s" "$printer_desc" | sed "s/'/'\\\\''/g")
-            cmd="dns-sd -R \"$safe_printer_desc @ $(hostname -s)\" \"$SERVICE\" \"$DOMAIN\" $PORT $txt_record_str"
+            local escaped_name
+            escaped_name=$(shell_escape "$ADVERTISED_NAME")
+            local escaped_service
+            escaped_service=$(shell_escape "$SERVICE")
+            local escaped_domain
+            escaped_domain=$(shell_escape "$DOMAIN")
+            cmd="dns-sd -R $escaped_name $escaped_service $escaped_domain $PORT$txt_record_str"
             echo "$cmd &"
             echo "PIDS+=(\"\$!\")"
         done
