@@ -1,9 +1,9 @@
 class AirprintBridge < Formula
   desc "Enable AirPrint functionality for non-AirPrint printers on macOS"
   homepage "https://github.com/sapireli/AirPrint_Bridge"
-  url "https://github.com/sapireli/AirPrint_Bridge/archive/59e9440a529e99d3000762608af57b0db6a7b62b.tar.gz"
-  version "1.3.2"
-  sha256 "889f8f015180dfc86e5b87dde5d55f331ce9fcb11de8a78e739126464321d8f8"
+  url "https://github.com/sapireli/AirPrint_Bridge/archive/a0f42bf1bd85387409edb6bea070d637d09051f3.tar.gz"
+  version "1.3.3"
+  sha256 "56015b16164302be04cf4a0c7995323399eb68d0548b1b373885a0dd7bb1241a"
   license "MIT"
 
   depends_on :macos
