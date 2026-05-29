@@ -1,6 +1,6 @@
 {
   "name": "airprint-bridge",
-  "version": "1.0.0",
+  "version": "1.3.3",
   "description": "AirPrint Bridge - Seamlessly Enable AirPrint for Non-AirPrint Printers on macOS",
   "private": true,
   "scripts": {
