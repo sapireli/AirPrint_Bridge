@@ -4,7 +4,7 @@
 # Enables AirPrint functionality for shared printers on macOS.
 # Author: Eliran Sapir
 # GitHub: https://github.com/sapireli/AirPrint_Bridge/
-# Version: 1.3.3
+# Version: 1.3.4
 # License: MIT
 #
 # This script is designed to make non-AirPrint printers accessible to iOS devices
@@ -130,26 +130,36 @@ usage() {
     echo "  -i  Install (requires sudo)"
     echo "  -u  Uninstall (requires sudo)"
     echo "  -t  Test (dry run mode), use CTRL-C to exit"
-    echo "  -f  Script filename and location"
+    echo "  -f, --script_file  Generated launcher filename and location"
     echo "  -h  Print this message"
     exit 1
 }
 
 COMMAND=""
 
-# Parse command line options using getopts (simplified approach)
+# Normalize long aliases while retaining getopts support for grouped short options.
+ARGS=()
+for arg in "$@"; do
+    case "$arg" in
+        --script_file) ARGS+=("-f") ;;
+        --help) ARGS+=("-h") ;;
+        *) ARGS+=("$arg") ;;
+    esac
+done
+set -- "${ARGS[@]}"
+
 while getopts ":iutf:h" opt; do
     case "$opt" in
         i) COMMAND="install" ;;
         u) COMMAND="uninstall" ;;
         t) COMMAND="test" ;;
-        f) SCRIPT_FILE="$OPTARG" ;;
+        f) [ -n "$OPTARG" ] || usage; SCRIPT_FILE="$OPTARG" ;;
         h) usage ;;
         *) usage ;;
     esac
 done
 
-shift $((OPTIND -1))
+LAUNCHER_FILE="${SCRIPT_FILE:-$SCRIPT}"
 
 # Ensure exactly one main command was chosen
 if [ -z "$COMMAND" ]; then
@@ -457,7 +467,7 @@ resolve_printer() {
 # Function to generate the registration script
 # Creates a script that runs dns-sd registration commands for each printer.
 generate_script() {
-    log "Generating ./$SCRIPT..."
+    log "Generating $LAUNCHER_FILE..."
     {
         echo "#!/bin/bash"
         echo "set +m"
@@ -473,13 +483,13 @@ generate_script() {
                 txt_record_str+="\"$txt\" "
             done
             safe_printer_desc=$(printf "%s" "$printer_desc" | sed "s/'/'\\\\''/g")
-            cmd="dns-sd -R \"$safe_printer_desc @ $(hostname -s)\" \"$SERVICE\" \"$DOMAIN\" $PORT $txt_record_str"
+            cmd="dns-sd -R \"$safe_printer_desc (AirPrint) @ $(hostname -s)\" \"$SERVICE\" \"$DOMAIN\" $PORT $txt_record_str"
             echo "$cmd &"
             echo "PIDS+=(\"\$!\")"
         done
         echo "wait"
-    } > "$SCRIPT"
-    chmod +x "$SCRIPT"
+    } > "$LAUNCHER_FILE"
+    chmod +x "$LAUNCHER_FILE"
 }
 
 # Function to generate the plist file for launchd
@@ -490,6 +500,11 @@ generate_plist() {
 
     log "Generating $plist_file..."
 
+    # Stop the old advertiser before replacing its launcher on upgrade.
+    if [ -f "$plist_file" ]; then
+        sudo launchctl unload -w "$plist_file" 2>/dev/null || true
+    fi
+
     # Ensure the script is moved to /usr/local/bin
     if [ ! -d "/usr/local/bin" ]; then
         log "Creating /usr/local/bin directory..."
@@ -497,8 +512,8 @@ generate_plist() {
         sudo chown "$USER":admin /usr/local/bin
     fi
 
-    log "Copying $SCRIPT to /usr/local/bin..."
-    sudo cp "$SCRIPT" "$script_path"
+    log "Copying $LAUNCHER_FILE to $script_path..."
+    sudo cp "$LAUNCHER_FILE" "$script_path"
     sudo chmod +x "$script_path"
 
     # Generate the plist file
@@ -607,7 +622,7 @@ test_run() {
     if browse_printers; then
         generate_script
         log "Registering printer(s), use CTRL-C to exit"
-        ./$SCRIPT
+        bash "$LAUNCHER_FILE"
     else
         log "Test aborted: No suitable printers found."
     fi

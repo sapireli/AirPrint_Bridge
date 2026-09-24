@@ -145,9 +145,11 @@ For example, to place the launcher script in a custom path:
 ./airprint_bridge.sh -t -f /path/to/custom_launcher.sh
 ```
 
-This tells `airprint_bridge.sh` to generate `/path/to/custom_launcher.sh` rather than the default `airprint_bridge_launcher.sh`. This can be useful if you need the script in a specific location or under a specific name.
+This generates and runs `/path/to/custom_launcher.sh` in test mode. During installation, the generated file is copied to the service's standard location, `/usr/local/bin/airprint_bridge_launcher.sh`. The parent directory for a custom path must already exist. `--script_file` is also accepted.
 
 > **Note**: The `-f` option only overrides the generation of the **registration** script, not the main `airprint_bridge.sh` itself.
+
+After upgrading with Homebrew (`brew update && brew upgrade airprint-bridge`), run `sudo airprint-bridge -i` again to regenerate the launcher and restart its advertisement with the updated service name.
 
 ## 🗑️ Uninstallation
 
