@@ -76,6 +76,7 @@ If you have Homebrew installed, you can install AirPrint Bridge directly:
 ```bash
 # Add the tap and install
 brew tap sapireli/AirPrint_Bridge https://github.com/sapireli/AirPrint_Bridge.git
+brew trust sapireli/airprint_bridge
 brew install airprint-bridge
 ```
 
